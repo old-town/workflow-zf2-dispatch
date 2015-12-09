@@ -20,12 +20,12 @@
 * [ServiceTypeResolver](./src/TypeResolver/ServiceTypeResolver.php) - резолвер добавляет поддержку новго типа "service"(сервисы ZF2)
 
 При создание нового объекта менеджера workflow, модулем [old-town/workflow-zf2](https://github.com/old-town/workflow-zf2)
-бросается событие workflow.manager.create. Обработка этого события осуществляется [InjectTypeResolver](./src/Listener/InjectTypeResolver.php).
+бросается событие workflow.manager.create. Обработка этого события осуществляется [WorkflowDispatchListener](./src/Listener/WorkflowDispatchListener.php).
 Обработчик:
 
 * Создает [ChainTypeResolver](./src/TypeResolver/ChainTypeResolver.php)
 * Добавляет в него TypeResolver установленный в менеджер workflow.
-* [InjectTypeResolver](./src/Listener/InjectTypeResolver.php) с помощью своего EventManager'а бросает собыите inject.workflow.type.resolver,
+* [WorkflowDispatchListener](./src/Listener/WorkflowDispatchListener.php) с помощью своего EventManager'а бросает собыите inject.workflow.type.resolver,
 обработчики данного события должны вернуть объект TypeResolver, который в последствие будет добавлен в ChainTypeResolver
 * Обработчки сам подписан на событие inject.workflow.type.resolver, в обработчике возвращается [ServiceTypeResolver](./src/TypeResolver/ServiceTypeResolver.php)
 * Устанавливает в workflow в качестве резолвера [ChainTypeResolver](./src/TypeResolver/ChainTypeResolver.php)

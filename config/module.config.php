@@ -5,8 +5,10 @@
  */
 namespace OldTown\Workflow\ZF2\PreDispatch;
 
+use OldTown\Workflow\ZF2\PreDispatch\Listener\WorkflowDispatchListenerFactory;
 use OldTown\Workflow\ZF2\PreDispatch\Options\ModuleOptions;
-use OldTown\Workflow\ZF2\PreDispatch\Options\ModuleOptionsFactory;;
+use OldTown\Workflow\ZF2\PreDispatch\Options\ModuleOptionsFactory;
+use OldTown\Workflow\ZF2\PreDispatch\Listener\WorkflowDispatchListener;
 
 return [
     'service_manager'           => [
@@ -15,6 +17,7 @@ return [
         ],
         'factories'          => [
             ModuleOptions::class => ModuleOptionsFactory::class,
+            WorkflowDispatchListener::class => WorkflowDispatchListenerFactory::class
         ],
         'abstract_factories' => [
 

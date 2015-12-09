@@ -7,19 +7,19 @@ namespace OldTown\Workflow\ZF2\PreDispatch\Listener;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-
+use OldTown\Workflow\ZF2\Service\Workflow as WorkflowService;
 
 /**
  * Class InjectTypeResolverFactory
  *
  * @package OldTown\Workflow\ZF2\PreDispatch\Listener
  */
-class InjectTypeResolverFactory implements  FactoryInterface
+class WorkflowDispatchListenerFactory implements  FactoryInterface
 {
     /**
      * @param ServiceLocatorInterface $serviceLocator
      *
-     * @return InjectTypeResolver
+     * @return WorkflowDispatchListener
      *
      * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \OldTown\Workflow\ZF2\PreDispatch\Listener\Exception\InvalidArgumentException
@@ -27,11 +27,12 @@ class InjectTypeResolverFactory implements  FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
 
+        $workflowService = $serviceLocator->get(WorkflowService::class);
         $options = [
-
+            'workflowService' => $workflowService
         ];
 
-        $service = new InjectTypeResolver($options);
+        $service = new WorkflowDispatchListener($options);
 
         return $service;
     }

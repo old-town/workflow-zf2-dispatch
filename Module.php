@@ -6,7 +6,6 @@
 namespace OldTown\Workflow\ZF2\PreDispatch;
 
 
-use OldTown\Workflow\ZF2\Service\Workflow;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventInterface;
@@ -14,7 +13,7 @@ use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\DependencyIndicatorInterface;
-use OldTown\Workflow\ZF2\PreDispatch\Listener\InjectTypeResolver;
+use OldTown\Workflow\ZF2\PreDispatch\Listener\WorkflowDispatchListener;
 
 
 /**
@@ -60,10 +59,9 @@ class Module implements
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
-        /** @var Workflow $workflowService */
-        $workflowService = $e->getApplication()->getServiceManager()->get(Workflow::class);
-        $listener = $e->getApplication()->getServiceManager()->get(InjectTypeResolver::class);
-        $workflowService->getEventManager()->attach($listener);
+        /** @var WorkflowDispatchListener $injectWorkflowListener */
+        $injectWorkflowListener = $e->getApplication()->getServiceManager()->get(WorkflowDispatchListener::class);
+        $eventManager->attach($injectWorkflowListener);
     }
 
 
