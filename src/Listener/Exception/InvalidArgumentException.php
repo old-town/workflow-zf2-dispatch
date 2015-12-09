@@ -1,16 +1,16 @@
 <?php
 /**
- * @link https://github.com/old-town/workflow-zf2-preDispatch
+ * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace  OldTown\Workflow\ZF2\PreDispatch\Listener\Exception;
+namespace  OldTown\Workflow\ZF2\Dispatch\Listener\Exception;
 
-use OldTown\Workflow\ZF2\PreDispatch\Exception\InvalidArgumentException as Exception;
+use OldTown\Workflow\ZF2\Dispatch\Exception\InvalidArgumentException as Exception;
 
 /**
  * Class InvalidArgumentException
  *
- * @package OldTown\Workflow\ZF2\PreDispatch\Listener\Exception
+ * @package OldTown\Workflow\ZF2\Dispatch\Listener\Exception
  */
 class InvalidArgumentException extends Exception implements
     ExceptionInterface

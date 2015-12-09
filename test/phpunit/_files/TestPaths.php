@@ -1,14 +1,14 @@
 <?php
 /**
- * @link    https://github.com/old-town/workflow-zf2-preDispatch
+ * @link    https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\PreDispatch\PhpUnit\TestData;
+namespace OldTown\Workflow\ZF2\Dispatch\PhpUnit\TestData;
 
 /**
  * Class TestPaths
  *
- * @package OldTown\Workflow\ZF2\PreDispatch\PhpUnit\TestData
+ * @package OldTown\Workflow\ZF2\Dispatch\PhpUnit\TestData
  */
 class TestPaths
 {

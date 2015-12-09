@@ -1,9 +1,9 @@
 <?php
 /**
- * @link https://github.com/old-town/workflow-zf2-preDispatch
+ * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\PreDispatch\Listener;
+namespace OldTown\Workflow\ZF2\Dispatch\Listener;
 
 
 use Zend\EventManager\AbstractListenerAggregate;
@@ -19,7 +19,7 @@ use OldTown\Workflow\Spi\WorkflowEntryInterface;
 /**
  * Class InjectTypeResolver
  *
- * @package OldTown\Workflow\ZF2\PreDispatch\Listener
+ * @package OldTown\Workflow\ZF2\Dispatch\Listener
  */
 class WorkflowDispatchListener extends AbstractListenerAggregate
 {
@@ -144,8 +144,8 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
      * @param $workflowName
      * @param $entryId
      *
-     * @throws \OldTown\Workflow\ZF2\PreDispatch\Listener\Exception\RuntimeException
-     * @throws \OldTown\Workflow\ZF2\PreDispatch\Listener\Exception\InvalidWorkflowNameException
+     * @throws \OldTown\Workflow\ZF2\Dispatch\Listener\Exception\RuntimeException
+     * @throws \OldTown\Workflow\ZF2\Dispatch\Listener\Exception\InvalidWorkflowNameException
      */
     public function validateWorkflowParams($workflowManagerName, $workflowName, $entryId)
     {

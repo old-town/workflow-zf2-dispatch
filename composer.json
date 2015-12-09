@@ -1,12 +1,12 @@
 {
-  "name": "old-town/workflow-zf2-preDispatch",
+  "name": "old-town/workflow-zf2-dispatch",
   "description": "Workflow pre dispatch",
   "type": "library",
   "keywords": [
     "zf2",
     "workflow",
     "zf2 module",
-    "preDispatch"
+    "dispatch"
   ],
   "license": "GPL-3.0",
   "authors": [
@@ -40,7 +40,7 @@
   },
   "autoload": {
     "psr-4": {
-      "OldTown\\Workflow\\ZF2\\PreDispatch\\": "src/"
+      "OldTown\\Workflow\\ZF2\\Dispatch\\": "src/"
     },
     "classmap": [
       "./Module.php"
@@ -48,8 +48,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "OldTown\\Workflow\\ZF2\\PreDispatch\\PhpUnit\\Test\\": "test/phpunit/tests",
-      "OldTown\\Workflow\\ZF2\\PreDispatch\\PhpUnit\\TestData\\": "test/phpunit/_files"
+      "OldTown\\Workflow\\ZF2\\Dispatch\\PhpUnit\\Test\\": "test/phpunit/tests",
+      "OldTown\\Workflow\\ZF2\\Dispatch\\PhpUnit\\TestData\\": "test/phpunit/_files"
     },
     "classmap": [
       "./test/phpunit/Bootstrap.php"

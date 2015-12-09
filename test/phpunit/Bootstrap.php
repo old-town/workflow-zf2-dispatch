@@ -1,9 +1,9 @@
 <?php
 /**
- * @link    https://github.com/old-town/workflow-zf2-preDispatch
+ * @link    https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\PreDispatch\PhpUnit\Test;
+namespace OldTown\Workflow\ZF2\Dispatch\PhpUnit\Test;
 
 use Zend\Loader\AutoloaderFactory;
 use Zend\Loader\StandardAutoloader;
@@ -15,7 +15,7 @@ chdir(__DIR__);
 /**
  * Class Bootstrap
  *
- * @package OldTown\Workflow\ZF2\PreDispatch\PhpUnit\Test
+ * @package OldTown\Workflow\ZF2\Dispatch\PhpUnit\Test
  */
 class Bootstrap
 {
@@ -56,9 +56,9 @@ class Bootstrap
                 StandardAutoloader::class => [
                     'autoregister_zf' => true,
                     'namespaces' => [
-                        'OldTown\\Workflow\\ZF2\\PreDispatch' => __DIR__ . '/../../src/',
+                        'OldTown\\Workflow\\ZF2\\Dispatch' => __DIR__ . '/../../src/',
                         __NAMESPACE__ => __DIR__ . '/tests/',
-                        'OldTown\\Workflow\\ZF2\\PreDispatch\\PhpUnit\\TestData' => __DIR__ . '/_files',
+                        'OldTown\\Workflow\\ZF2\\Dispatch\\PhpUnit\\TestData' => __DIR__ . '/_files',
                     ]
                 ]
             ]);

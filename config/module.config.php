@@ -1,14 +1,14 @@
 <?php
 /**
- * @link    https://github.com/old-town/workflow-zf2-preDispatch
+ * @link    https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\PreDispatch;
+namespace OldTown\Workflow\ZF2\Dispatch;
 
-use OldTown\Workflow\ZF2\PreDispatch\Listener\WorkflowDispatchListenerFactory;
-use OldTown\Workflow\ZF2\PreDispatch\Options\ModuleOptions;
-use OldTown\Workflow\ZF2\PreDispatch\Options\ModuleOptionsFactory;
-use OldTown\Workflow\ZF2\PreDispatch\Listener\WorkflowDispatchListener;
+use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListenerFactory;
+use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptions;
+use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptionsFactory;
+use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
 
 return [
     'service_manager'           => [
@@ -23,6 +23,6 @@ return [
 
         ]
     ],
-    'workflow_zf2_preDispatch'         => [
+    'workflow_zf2_dispatch'         => [
     ]
 ];
