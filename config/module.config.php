@@ -10,7 +10,7 @@ use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptions;
 use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptionsFactory;
 use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
 
-return [
+$config = [
     'service_manager'           => [
         'invokables' => [
 
@@ -26,3 +26,9 @@ return [
     'workflow_zf2_dispatch'         => [
     ]
 ];
+
+
+return array_merge_recursive(
+    include __DIR__ . '/router.config.php',
+    $config
+);
