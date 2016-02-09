@@ -5,7 +5,6 @@
  */
 namespace OldTown\Workflow\ZF2\Dispatch\Listener;
 
-
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerInterface;
@@ -189,6 +188,4 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
 
         return $this;
     }
-
-
 }

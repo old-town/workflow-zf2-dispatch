@@ -26,7 +26,6 @@ class WorkflowDispatchListenerFactory implements  FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-
         $workflowService = $serviceLocator->get(WorkflowService::class);
         $options = [
             'workflowService' => $workflowService
