@@ -27,8 +27,8 @@ class TestPaths
      *
      * @return string
      */
-    public static function getPathToDefaultAppConfig()
+    public static function getPathToIntegrationTest()
     {
-        return __DIR__ . '/../_files/DefaultApp/application.config.php';
+        return __DIR__ . '/../_files/IntegrationTest/application.config.php';
     }
 }

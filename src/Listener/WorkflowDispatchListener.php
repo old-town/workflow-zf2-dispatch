@@ -13,6 +13,7 @@ use Zend\Mvc\Controller\AbstractController;
 use Zend\Mvc\Router\RouteMatch;
 use OldTown\Workflow\ZF2\Service\Workflow as WorkflowService;
 use OldTown\Workflow\Spi\WorkflowEntryInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\ReaderInterface;
 
 
 /**
@@ -35,6 +36,11 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
     protected $workflowService;
 
     /**
+     * @var ReaderInterface
+     */
+    protected $metadataReader;
+
+    /**
      * @param array $options
      */
     public function __construct(array $options = [])
@@ -44,11 +50,14 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
 
     /**
      * @param WorkflowService $workflowService
+     * @param ReaderInterface $metadataReader
      */
-    protected function init(WorkflowService $workflowService)
+    protected function init(WorkflowService $workflowService, ReaderInterface $metadataReader)
     {
         $this->setWorkflowService($workflowService);
+        $this->setMetadataReader($metadataReader);
     }
+
 
     /**
      * @param EventManagerInterface $events
@@ -63,9 +72,58 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
      *
      * @throws Exception\InvalidArgumentException
      * @throws Exception\WorkflowDispatchException
+     * @throws Exception\RuntimeException
+     * @throws Exception\DomainException
      */
     public function onDispatchWorkflow(MvcEvent $e)
     {
+        $controller = $e->getTarget();
+        if (!$controller instanceof AbstractController) {
+            $errMsg = sprintf('Controller not implement %s', AbstractController::class);
+            throw new Exception\RuntimeException($errMsg);
+        }
+
+        $routeMatch = $e->getRouteMatch();
+        if (!$routeMatch) {
+            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
+        }
+
+
+        $action = $routeMatch->getParam('action', 'not-found');
+        $actionMethod = AbstractController::getMethodFromAction($action);
+
+        if (!method_exists($controller, $actionMethod)) {
+            return;
+        }
+
+        $controllerClassName = get_class($controller);
+        $metadata = $this->getMetadataReader()->loadMetadataForAction($controllerClassName, $actionMethod);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        return;
+
+
+
+
+
+
+
+
+
         $routeMatch = $e->getRouteMatch();
 
         if (!$routeMatch instanceof RouteMatch || 0 !== strpos($routeMatch->getMatchedRouteName(), 'workflow/dispatch/')) {
@@ -185,6 +243,26 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
     public function setWorkflowService(WorkflowService $workflowService)
     {
         $this->workflowService = $workflowService;
+
+        return $this;
+    }
+
+    /**
+     * @return ReaderInterface
+     */
+    public function getMetadataReader()
+    {
+        return $this->metadataReader;
+    }
+
+    /**
+     * @param ReaderInterface $metadataReader
+     *
+     * @return $this
+     */
+    public function setMetadataReader(ReaderInterface $metadataReader)
+    {
+        $this->metadataReader = $metadataReader;
 
         return $this;
     }

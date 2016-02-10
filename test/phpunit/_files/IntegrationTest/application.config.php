@@ -1,6 +1,6 @@
 <?php
 
-use \OldTown\Workflow\ZF2\Dispatch\PhpUnit\TestData\TestPaths;
+use OldTown\Workflow\ZF2\Dispatch\PhpUnit\TestData\TestPaths;
 
 return [
     'modules' => [
@@ -11,6 +11,8 @@ return [
         'module_paths' => [
             'OldTown\\Workflow\\ZF2\\Dispatch' => TestPaths::getPathToModule()
         ],
-        'config_glob_paths' => []
+        'config_glob_paths' => [
+            __DIR__ . '/config/autoload/{{,*.}global,{,*.}local}.php',
+        ],
     ]
 ];

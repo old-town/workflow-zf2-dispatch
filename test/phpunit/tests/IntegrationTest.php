@@ -14,18 +14,19 @@ use Zend\Test\PHPUnit\Controller\AbstractHttpControllerTestCase;
  *
  * @package OldTown\Workflow\ZF2\Dispatch\PhpUnit\Test
  */
-class ModuleTest extends AbstractHttpControllerTestCase
+class IntegrationTest extends AbstractHttpControllerTestCase
 {
     /**
      *
      * @return void
      */
-    public function testLoadModule()
+    public function testDispatch()
     {
         /** @noinspection PhpIncludeInspection */
         $this->setApplicationConfig(
             include TestPaths::getPathToIntegrationTest()
         );
-        $this->assertModulesLoaded(['OldTown\Workflow\ZF2\Dispatch']);
+
+        $this->dispatch('test');
     }
 }
