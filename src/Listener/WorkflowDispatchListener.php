@@ -6,14 +6,10 @@
 namespace OldTown\Workflow\ZF2\Dispatch\Listener;
 
 use Zend\EventManager\AbstractListenerAggregate;
-use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerInterface;
 use Zend\Mvc\MvcEvent;
 use Zend\Mvc\Controller\AbstractController;
-use Zend\Mvc\Router\RouteMatch;
-use OldTown\Workflow\ZF2\Service\Workflow as WorkflowService;
-use OldTown\Workflow\Spi\WorkflowEntryInterface;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\ReaderInterface;
+use OldTown\Workflow\ZF2\Dispatch\Dispatcher\DispatcherInterface;
 
 
 /**
@@ -23,22 +19,10 @@ use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\ReaderInterface;
  */
 class WorkflowDispatchListener extends AbstractListenerAggregate
 {
-    use EventManagerAwareTrait;
-
     /**
-     * @var string
+     * @var DispatcherInterface
      */
-    const TRANSITION_RESULT = 'transitionResult';
-
-    /**
-     * @var WorkflowService
-     */
-    protected $workflowService;
-
-    /**
-     * @var ReaderInterface
-     */
-    protected $metadataReader;
+    protected $workflowDispatcher;
 
     /**
      * @param array $options
@@ -49,15 +33,12 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
     }
 
     /**
-     * @param WorkflowService $workflowService
-     * @param ReaderInterface $metadataReader
+     * @param DispatcherInterface $workflowDispatcher
      */
-    protected function init(WorkflowService $workflowService, ReaderInterface $metadataReader)
+    protected function init(DispatcherInterface $workflowDispatcher)
     {
-        $this->setWorkflowService($workflowService);
-        $this->setMetadataReader($metadataReader);
+        $this->setWorkflowDispatcher($workflowDispatcher);
     }
-
 
     /**
      * @param EventManagerInterface $events
@@ -69,200 +50,31 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
 
     /**
      * @param MvcEvent $e
-     *
-     * @throws Exception\InvalidArgumentException
-     * @throws Exception\WorkflowDispatchException
-     * @throws Exception\RuntimeException
-     * @throws Exception\DomainException
      */
     public function onDispatchWorkflow(MvcEvent $e)
     {
-        $controller = $e->getTarget();
-        if (!$controller instanceof AbstractController) {
-            $errMsg = sprintf('Controller not implement %s', AbstractController::class);
-            throw new Exception\RuntimeException($errMsg);
-        }
-
-        $routeMatch = $e->getRouteMatch();
-        if (!$routeMatch) {
-            throw new Exception\DomainException('Missing route matches; unsure how to retrieve action');
-        }
-
-
-        $action = $routeMatch->getParam('action', 'not-found');
-        $actionMethod = AbstractController::getMethodFromAction($action);
-
-        if (!method_exists($controller, $actionMethod)) {
-            return;
-        }
-
-        $controllerClassName = get_class($controller);
-        $metadata = $this->getMetadataReader()->loadMetadataForAction($controllerClassName, $actionMethod);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return;
-
-
-
-
-
-
-
-
-
-        $routeMatch = $e->getRouteMatch();
-
-        if (!$routeMatch instanceof RouteMatch || 0 !== strpos($routeMatch->getMatchedRouteName(), 'workflow/dispatch/')) {
-            return;
-        }
-
-        $workflowManagerName = $routeMatch->getParam('workflowManagerName', null);
-        if (null === $workflowManagerName) {
-            $errMsg = 'Param managerName not found';
-            throw new Exception\InvalidArgumentException($errMsg);
-        }
-
-        $workflowActionName = $routeMatch->getParam('workflowActionName', null);
-        if (null === $workflowActionName) {
-            $errMsg = 'Param actionName not found';
-            throw new Exception\InvalidArgumentException($errMsg);
-        }
-
-
-        $workflowName = $routeMatch->getParam('workflowName', null);
-        $entryId = $routeMatch->getParam('entryId', null);
-
-        if (null === $workflowName && null === $entryId) {
-            $errMsg = 'workflowName and entryId not found';
-            throw new Exception\InvalidArgumentException($errMsg);
-        }
-
-        try {
-            if (null !== $entryId) {
-                if (null !== $workflowName) {
-                    $this->validateWorkflowParams($workflowManagerName, $workflowName, $entryId);
-                }
-                $result = $this->doAction($workflowManagerName, $workflowActionName, $entryId);
-            } else {
-                $result = $this->initialize($workflowManagerName, $workflowActionName, $workflowName);
-            }
-        } catch (\Exception $e) {
-            throw new Exception\WorkflowDispatchException($e->getMessage(), $e->getCode(), $e);
-        }
-
-        $e->setParam(static::TRANSITION_RESULT, $result);
+        $event = $this->getWorkflowDispatcher()->workflowDispatchEventFactory();
+        $event->setMvcEvent($e);
+        $this->getWorkflowDispatcher()->dispatch($event);
     }
 
 
     /**
-     * @param          $workflowManagerName
-     * @param          $workflowActionName
-     * @param          $entryId
-     *
-     * @return WorkflowService\TransitionResultInterface
-     *
-     * @throws \OldTown\Workflow\ZF2\Service\Exception\DoActionException
+     * @return DispatcherInterface
      */
-    public function doAction($workflowManagerName, $workflowActionName, $entryId)
+    public function getWorkflowDispatcher()
     {
-        return $this->getWorkflowService()->doAction($workflowManagerName, $entryId, $workflowActionName);
-    }
-
-
-    /**
-     * @param          $workflowManagerName
-     * @param          $workflowActionName
-     * @param          $workflowName
-     *
-     * @return WorkflowService\TransitionResultInterface
-     * @throws \OldTown\Workflow\ZF2\Service\Exception\InvalidInitializeWorkflowEntryException
-     */
-    public function initialize($workflowManagerName, $workflowActionName, $workflowName)
-    {
-        return $this->getWorkflowService()->initialize($workflowManagerName, $workflowName, $workflowActionName);
+        return $this->workflowDispatcher;
     }
 
     /**
-     * @param $workflowManagerName
-     * @param $workflowName
-     * @param $entryId
-     *
-     * @throws \OldTown\Workflow\ZF2\Dispatch\Listener\Exception\RuntimeException
-     * @throws \OldTown\Workflow\ZF2\Dispatch\Listener\Exception\InvalidWorkflowNameException
-     */
-    public function validateWorkflowParams($workflowManagerName, $workflowName, $entryId)
-    {
-        try {
-            $entry = $this->getWorkflowService()
-                ->getWorkflowManager($workflowManagerName)
-                ->getConfiguration()
-                ->getWorkflowStore()
-                ->findEntry($entryId);
-
-            if (!$entry instanceof WorkflowEntryInterface) {
-                $errMsg = 'Invalid workflow entry';
-                throw new Exception\RuntimeException($errMsg);
-            }
-        } catch (\Exception $e) {
-            throw new Exception\RuntimeException($e->getMessage(), $e->getCode(), $e);
-        }
-
-        if ($workflowName !== $entry->getWorkflowName()) {
-            $errMsg = sprintf('Invalid workflow name %s. Expected: %s', $workflowName, $entry->getWorkflowName());
-            throw new Exception\InvalidWorkflowNameException($errMsg);
-        }
-    }
-
-    /**
-     * @return WorkflowService
-     */
-    public function getWorkflowService()
-    {
-        return $this->workflowService;
-    }
-
-    /**
-     * @param WorkflowService $workflowService
+     * @param DispatcherInterface $workflowDispatcher
      *
      * @return $this
      */
-    public function setWorkflowService(WorkflowService $workflowService)
+    public function setWorkflowDispatcher(DispatcherInterface $workflowDispatcher)
     {
-        $this->workflowService = $workflowService;
-
-        return $this;
-    }
-
-    /**
-     * @return ReaderInterface
-     */
-    public function getMetadataReader()
-    {
-        return $this->metadataReader;
-    }
-
-    /**
-     * @param ReaderInterface $metadataReader
-     *
-     * @return $this
-     */
-    public function setMetadataReader(ReaderInterface $metadataReader)
-    {
-        $this->metadataReader = $metadataReader;
+        $this->workflowDispatcher = $workflowDispatcher;
 
         return $this;
     }

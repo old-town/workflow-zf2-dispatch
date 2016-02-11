@@ -510,5 +510,4 @@ class Metadata implements MetadataInterface
             }
         }
     }
-
 }

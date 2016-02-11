@@ -5,8 +5,6 @@
  */
 namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Required;
-
 /**
  * Action контроллера работает с workflow
  *

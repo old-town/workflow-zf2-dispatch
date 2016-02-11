@@ -18,12 +18,18 @@ class DispatchConditionMetadata
     const CONDITION_RUN_TYPE_SERVICE = 'service';
 
     /**
+     * @var string
+     */
+    const CONDITION_RUN_TYPE_METHOD = 'method';
+
+    /**
      * Разрешенные типы запуска workflow
      *
      * @var array
      */
     protected $allowConditionRunType = [
-        self::CONDITION_RUN_TYPE_SERVICE => self::CONDITION_RUN_TYPE_SERVICE
+        self::CONDITION_RUN_TYPE_SERVICE => self::CONDITION_RUN_TYPE_SERVICE,
+        self::CONDITION_RUN_TYPE_METHOD => self::CONDITION_RUN_TYPE_METHOD
     ];
 
     /**

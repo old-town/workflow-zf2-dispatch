@@ -5,7 +5,6 @@
  */
 namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 
-
 /**
  * Class Condition
  *
@@ -19,7 +18,7 @@ final class Condition
     /**
      * @var string
      *
-     * @Enum({"service"})
+     * @Enum({"service", "method", "function"})
      * @Required()
      */
     public $type;

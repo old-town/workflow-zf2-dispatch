@@ -9,16 +9,19 @@ use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListenerFactory;
 use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptions;
 use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptionsFactory;
 use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
-
+use OldTown\Workflow\ZF2\Dispatch\Dispatcher\Dispatcher;
+use OldTown\Workflow\ZF2\Dispatch\Dispatcher\DispatcherFactory;
 
 return [
-    'service_manager'           => [
-        'invokables' => [
+    'service_manager' => [
+        'invokables'         => [
 
         ],
         'factories'          => [
-            ModuleOptions::class => ModuleOptionsFactory::class,
-            WorkflowDispatchListener::class => WorkflowDispatchListenerFactory::class
+            ModuleOptions::class            => ModuleOptionsFactory::class,
+            WorkflowDispatchListener::class => WorkflowDispatchListenerFactory::class,
+            Dispatcher::class               => DispatcherFactory::class
+
         ],
         'abstract_factories' => [
 

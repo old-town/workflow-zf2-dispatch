@@ -6,6 +6,11 @@
 
 use OldTown\Workflow\ZF2\Dispatch\PhpUnit\TestData\IntegrationTest\TestController;
 
+use OldTown\Workflow\Loader\ArrayWorkflowFactory;
+use OldTown\Workflow\Util\DefaultVariableResolver;
+use OldTown\Workflow\Basic\BasicWorkflow;
+use OldTown\Workflow\Spi\Memory\MemoryWorkflowStore;
+
 return [
     'router' => [
         'routes' => [
@@ -15,12 +20,50 @@ return [
                     'route' => 'test',
                     'defaults'=> [
                         'controller' => TestController::class,
-                        'action' => 'test'
+                        'action' => 'test',
+
+                        'workflowManagerName' => 'testWorkflowManager',
+                        'workflowActionName' => 'initAction',
+                        'workflowName' => 'test',
+
                     ],
                 ],
             ]
         ]
     ],
+    'workflow_zf2'    => [
+        'configurations' => [
+            'default' => [
+                'persistence' => [
+                    'name' => MemoryWorkflowStore::class,
+                ],
+                'factory' => [
+                    'name' => ArrayWorkflowFactory::class,
+                    'options' => [
+                        'reload' => true,
+                        'workflows' => [
+                            'test' => [
+                                'location' => __DIR__ . '/test_workflow.xml'
+                            ]
+                        ]
+                    ]
+                ],
+                'resolver' => DefaultVariableResolver::class,
+            ]
+        ],
+
+        'managers' => [
+            'testWorkflowManager' => [
+                'configuration' => 'default',
+                'name' => BasicWorkflow::class
+            ]
+        ]
+    ],
+
+
+
+
+
     'controllers' => [
         'invokables' => [
             TestController::class => TestController::class
