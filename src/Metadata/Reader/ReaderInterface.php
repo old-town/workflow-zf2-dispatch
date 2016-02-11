@@ -5,7 +5,7 @@
  */
 namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Reader;
 
-use \OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataInterface;
+use \OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
 
 /**
  * Interface ReaderInterface

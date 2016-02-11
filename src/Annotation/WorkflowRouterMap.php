@@ -5,6 +5,8 @@
  */
 namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Metadata;
+
 /**
  * Class WorkflowRouterMap
  *
@@ -16,50 +18,22 @@ namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 final class WorkflowRouterMap
 {
     /**
-     * Имя параметра роуетра, значение которого определяет имя используемого менеджера workflow
-     *
      * @var string
      */
-    const WORKFLOW_MANAGER_NAME = 'workflowManagerName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет имя действия в workflow
-     *
-     * @var string
-     */
-    const WORKFLOW_ACTION_NAME = 'workflowActionName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет имя workflow
-     *
-     * @var string
-     */
-    const WORKFLOW_NAME = 'workflowName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет id процесса workflow
-     *
-     * @var string
-     */
-    const ENTRY_ID = 'entryId';
+    public $managerName = Metadata::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
 
     /**
      * @var string
      */
-    public $managerName = self::WORKFLOW_MANAGER_NAME;
+    public $actionName = Metadata::WORKFLOW_ACTION_NAME_ROUTER_PARAM;
 
     /**
      * @var string
      */
-    public $actionName = self::WORKFLOW_ACTION_NAME;
-
-    /**
-     * @var string
-     */
-    public $name = self::WORKFLOW_NAME;
+    public $name = Metadata::WORKFLOW_NAME_ROUTER_PARAM;
 
     /**
      * @var integer
      */
-    public $entryId = self::ENTRY_ID;
+    public $entryId = Metadata::ENTRY_ID_ROUTER_PARAM;
 }

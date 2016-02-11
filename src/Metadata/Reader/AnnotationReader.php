@@ -5,12 +5,12 @@
  */
 namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Reader;
 
-use OldTown\Workflow\ZF2\Dispatch\Metadata\DispatchConditionMetadata;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\DispatchConditionMetadata;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
 use Doctrine\Common\Annotations\AnnotationRegistry;
 use Doctrine\Common\Annotations\Reader as DoctrineAnnotationsReaderInterface;
 use Doctrine\Common\Annotations\AnnotationReader as DoctrineAnnotationReader;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Metadata;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Metadata;
 use OldTown\Workflow\ZF2\Dispatch\Annotation as Annotation;
 use OldTown\Workflow\ZF2\Dispatch\Annotation\Condition;
 
@@ -120,14 +120,16 @@ class AnnotationReader implements ReaderInterface
             }
         }
 
+        /** @var Annotation\WorkflowRouterMap|null $workflowRouterMapAnnotation */
+        $workflowRouterMapAnnotation = $this->getReader()->getMethodAnnotation($rMethod, Annotation\WorkflowRouterMap::class);
+        if ($workflowRouterMapAnnotation) {
+            $metadata->setWorkflowManagerNameRouterParam($workflowRouterMapAnnotation->managerName);
+            $metadata->setWorkflowActionNameRouterParam($workflowRouterMapAnnotation->actionName);
+            $metadata->setWorkflowNameRouterParam($workflowRouterMapAnnotation->name);
+            $metadata->setEntryIdRouterParam($workflowRouterMapAnnotation->entryId);
+        }
 
-
-
-
-
-
-
-
+        $metadata->validate();
 
         return $metadata;
     }

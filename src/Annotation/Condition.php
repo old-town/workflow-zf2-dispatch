@@ -5,7 +5,6 @@
  */
 namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 
-use Doctrine\Common\Annotations\Annotation\Required;
 
 /**
  * Class Condition
@@ -20,7 +19,7 @@ final class Condition
     /**
      * @var string
      *
-     * @Enum({"method", "service", "function"})
+     * @Enum({"service"})
      * @Required()
      */
     public $type;
