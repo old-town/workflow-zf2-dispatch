@@ -84,26 +84,6 @@ class Dispatcher implements DispatcherInterface
     }
 
     /**
-     * Фабрика для создания событий
-     *
-     * @return WorkflowDispatchEventInterface
-     */
-    public function workflowDispatchEventFactory()
-    {
-        $className = $this->getWorkflowDispatchEventClassName();
-        $r = new ReflectionClass($className);
-
-        $instance = $r->newInstance();
-
-        if (!$instance instanceof WorkflowDispatchEventInterface) {
-            $errMsg = sprintf('Class %s not implement %s', $className, WorkflowDispatchEventInterface::class);
-            throw new Exception\WorkflowDispatchEventException($errMsg);
-        }
-
-        return $instance;
-    }
-
-    /**
      * Диспетчирезация работы с workflow
      *
      * @param WorkflowDispatchEventInterface $event
@@ -211,6 +191,8 @@ class Dispatcher implements DispatcherInterface
      * @param WorkflowDispatchEventInterface $e
      *
      * @return mixed|null
+     *
+     * @throws Exception\PrepareDataException
      */
     public function onPrepareDataHandler(WorkflowDispatchEventInterface $e)
     {
@@ -220,30 +202,26 @@ class Dispatcher implements DispatcherInterface
         $handler = $metadata->getPrepareDataHandler();
 
         $prepareDataResult = null;
-        switch ($type) {
-            case 'method': {
-                $mvcEvent = $e->getMvcEvent();
-                $controller = $mvcEvent->getTarget();
-                if (!$controller instanceof AbstractController) {
-                    $errMsg = sprintf('Controller not implement %s', AbstractController::class);
-                    throw new Exception\PrepareDataException($errMsg);
-                }
-                $callback = [$controller, $handler];
-                if (!is_callable($callback)) {
-                    $errMsg = sprintf('Invalid handler"%s"', $handler);
-                    throw new Exception\PrepareDataException($errMsg);
-                }
-                $prepareDataResult = call_user_func($callback, $e);
-                if (null === $prepareDataResult) {
-                    $prepareDataResult = [];
-                }
 
-                break;
-            }
-            default: {
-                $errMsg = sprintf('Preparing data for Workflow will fail. Unknown handler type %s.', $type);
+        if ('method' === $type) {
+            $mvcEvent = $e->getMvcEvent();
+            $controller = $mvcEvent->getTarget();
+            if (!$controller instanceof AbstractController) {
+                $errMsg = sprintf('Controller not implement %s', AbstractController::class);
                 throw new Exception\PrepareDataException($errMsg);
             }
+            $callback = [$controller, $handler];
+            if (!is_callable($callback)) {
+                $errMsg = sprintf('Invalid handler"%s"', $handler);
+                throw new Exception\PrepareDataException($errMsg);
+            }
+            $prepareDataResult = call_user_func($callback, $e);
+            if (null === $prepareDataResult) {
+                $prepareDataResult = [];
+            }
+        } else {
+            $errMsg = sprintf('Preparing data for Workflow will fail. Unknown handler type %s.', $type);
+            throw new Exception\PrepareDataException($errMsg);
         }
 
         if (!is_array($prepareDataResult) && !$prepareDataResult instanceof Traversable) {
@@ -261,6 +239,9 @@ class Dispatcher implements DispatcherInterface
      * @param WorkflowDispatchEventInterface $e
      *
      * @return boolean|null
+     *
+     * @throws \Zend\Validator\Exception\InvalidArgumentException
+     * @throws  Exception\PrepareDataException
      */
     public function onCheckRunWorkflowHandler(WorkflowDispatchEventInterface $e)
     {
@@ -269,12 +250,18 @@ class Dispatcher implements DispatcherInterface
             return null;
         }
 
-        $conditions = $metadata->getConditions();
+        try {
+            $conditions = $metadata->getConditions();
 
-        $validatorManager = $this->getValidatorManager();
+            $validatorManager = $this->getValidatorManager();
 
-        /** @var ValidatorChain $validatorChains */
-        $validatorChains = $validatorManager->get(ValidatorChain::class);
+            /** @var ValidatorChain $validatorChains */
+            $validatorChains = $validatorManager->get(ValidatorChain::class);
+        } catch (\Exception $e) {
+            throw new Exception\PrepareDataException($e->getMessage(), $e->getCode(), $e);
+        }
+
+
 
         $mvcEvent = $e->getMvcEvent();
         $controller = $mvcEvent->getTarget();
@@ -284,42 +271,44 @@ class Dispatcher implements DispatcherInterface
 
 
         foreach ($conditions as $condition) {
-            $type = $condition->getType();
-            $handler = $condition->getHandler();
-            switch ($type) {
-                case 'method': {
-                    if (null === $controller) {
-                        $errMsg = 'Controller not specified';
-                        throw new Exception\CheckRunWorkflowEventException($errMsg);
+            try {
+                $type = $condition->getType();
+                $handler = $condition->getHandler();
+                switch ($type) {
+                    case 'method': {
+                        if (null === $controller) {
+                            $errMsg = 'Controller not specified';
+                            throw new Exception\CheckRunWorkflowEventException($errMsg);
+                        }
+                        $callback = [$controller, $handler];
+
+                        /** @var ValidatorInterface $callbackValidator */
+                        $callbackValidator = $validatorManager->get('callback', $callback);
+
+                        $validatorChains->attach($callbackValidator);
+
+                        break;
                     }
-                    $callback = [$controller, $handler];
+                    case 'service': {
+                        $validatorParams = $condition->getParams();
+                        /** @var ValidatorInterface $validator */
+                        $validator = $validatorManager->get($handler, $validatorParams);
 
-                    /** @var ValidatorInterface $callbackValidator */
-                    $callbackValidator = $validatorManager->get('callback', $callback);
+                        $validatorChains->attach($validator);
 
-                    $validatorChains->attach($callbackValidator);
-
-                    break;
+                        break;
+                    }
+                    default: {
+                        $errMsg = sprintf('Preparing data for Workflow will fail. Unknown handler type %s.', $type);
+                        throw new Exception\PrepareDataException($errMsg);
+                    }
                 }
-                case 'service': {
-                    $validatorParams = $condition->getParams();
-                    /** @var ValidatorInterface $validator */
-                    $validator = $validatorManager->get($handler, $validatorParams);
-
-                    $validatorChains->attach($validator);
-
-                    break;
-                }
-                default: {
-                    $errMsg = sprintf('Preparing data for Workflow will fail. Unknown handler type %s.', $type);
-                    throw new Exception\PrepareDataException($errMsg);
-                }
+            } catch (\Exception $e) {
+                throw new Exception\PrepareDataException($e->getMessage(), $e->getCode(), $e);
             }
         }
 
-        $flagRunWorkflow = $validatorChains->isValid($e);
-
-        return $flagRunWorkflow;
+        return $validatorChains->isValid($e);
     }
 
     /**
@@ -328,6 +317,10 @@ class Dispatcher implements DispatcherInterface
      * @param WorkflowDispatchEventInterface $e
      *
      * @return TransitionResultInterface
+     *
+     *
+     * @throws Exception\InvalidArgumentException
+     * @throws  Exception\WorkflowDispatchEventException
      */
     public function onRunWorkflowHandler(WorkflowDispatchEventInterface $e)
     {
@@ -399,22 +392,53 @@ class Dispatcher implements DispatcherInterface
     /**
      *
      * @return TransientVarsInterface
+     *
+     * @throws Exception\WorkflowDispatchEventException
      */
     public function factoryTransientVars()
     {
         $className = $this->getTransientVarsClassName();
+
+        return $this->factoryClassName($className, TransientVarsInterface::class);
+    }
+
+    /**
+     * Фабрика для создания событий
+     *
+     * @return WorkflowDispatchEventInterface
+     *
+     * @throws Exception\WorkflowDispatchEventException
+     */
+    public function workflowDispatchEventFactory()
+    {
+        $className = $this->getWorkflowDispatchEventClassName();
+
+        return $this->factoryClassName($className, WorkflowDispatchEventInterface::class);
+    }
+
+    /**
+     * Создает экземпляр класса и проверяет то что созданный объект имплементирует заданный интерфейс
+     *
+     * @param $className
+     * @param $interface
+     *
+     * @return mixed
+     *
+     * @throws  Exception\WorkflowDispatchEventException
+     */
+    protected function factoryClassName($className, $interface)
+    {
         $r = new ReflectionClass($className);
 
         $instance = $r->newInstance();
 
-        if (!$instance instanceof TransientVarsInterface) {
-            $errMsg = sprintf('Class %s not implement %s', $className, TransientVarsInterface::class);
+        if (!$instance instanceof $interface) {
+            $errMsg = sprintf('Class %s not implement %s', $className, $interface);
             throw new Exception\WorkflowDispatchEventException($errMsg);
         }
 
         return $instance;
     }
-
 
     /**
      * @return WorkflowService
