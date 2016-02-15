@@ -1,6 +1,7 @@
 docs_dir: doc/book/ru
 pages:
     - index.md
+    - 'Общая концепция' concept.md
 site_name: workflow-zf2-dispatch
 site_description: 'Модуль для автоматического запуска workflow в проектах реализованных на zf2.'
 repo_url: 'https://github.com/old-town/workflow-zf2-dispatch'
