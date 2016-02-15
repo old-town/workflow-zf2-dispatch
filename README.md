@@ -13,3 +13,7 @@ Develop:
 Модуль предназначен для автоматического запуска workflow в проекта реализованных на zf2. 
 
 = Документация =
+- [Online documentation](http://workflow-zf2-dispatch.readthedocs.org/ru/dev/)
+- [Documentation source files](doc/book/ru/)
+
+
