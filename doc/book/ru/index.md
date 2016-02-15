@@ -9,5 +9,5 @@ Develop:
 [![Coverage Status](https://coveralls.io/repos/github/old-town/workflow-zf2-dispatch/badge.svg?branch=dev)](https://coveralls.io/github/old-town/workflow-zf2-dispatch?branch=dev)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/old-town/workflow-zf2-dispatch/badges/quality-score.png?b=dev)](https://scrutinizer-ci.com/g/old-town/workflow-zf2-dispatch/?branch=dev)
 
-= Описание модуля =
-Модуль предназначен для автоматического запуска workflow в проекта реализованных на zf2. 
+## Описание модуля
+Модуль предназначен для автоматического запуска workflow в проектах реализованных на zf2. 
