@@ -2,6 +2,7 @@ docs_dir: doc/book/ru
 pages:
     - index.md
     - 'Общая концепция': concept.md
+    - 'Жизненный цикл диспетчирезации': life-cicle.md
     - 'Метаданные на основе анотаций': metada-annotation.md
 site_name: workflow-zf2-dispatch
 site_description: 'Модуль для автоматического запуска workflow в проектах реализованных на zf2.'
