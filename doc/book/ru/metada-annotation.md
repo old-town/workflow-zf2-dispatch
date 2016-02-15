@@ -1,3 +1,9 @@
+# Метаданные на основе анотаций для указания слоев
+
+## Приме описания слоев, через анотации
+
+```php
+
 <?php
 /**
  * @link    https://github.com/old-town/workflow-zf2-dispatch
@@ -60,3 +66,5 @@ class TestController extends AbstractActionController
         return $viewModel;
     }
 }
+
+```
