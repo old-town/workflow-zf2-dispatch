@@ -1,6 +1,6 @@
 # Метаданные на основе анотаций для указания слоев
 
-## Приме описания слоев, через анотации
+## Пример описания слоев, через анотации
 
 ```php
 
@@ -61,5 +61,16 @@ class TestController extends AbstractActionController
         return $viewModel;
     }
 }
-
 ```
+
+## Использование анотаций
+Необходимо с помощью use, декларировать использование пространства имен OldTown\Workflow\ZF2\Dispatch\Annotation.
+```php
+use OldTown\Workflow\ZF2\Dispatch\Annotation as WFD;
+```
+
+Для удобства использования, указать псевдоним для данного пространства имен. В качестве рекоменации предлагается использовать
+псевдоним WFD (WorkFlowDispatch)
+
+## Подключение слоя prepare data 
+
