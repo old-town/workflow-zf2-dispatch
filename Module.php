@@ -19,7 +19,7 @@ use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
 /**
  * Class Module
  *
- * @package OldTown\Workflow\ZF2
+ * @package OldTown\Workflow\ZF2\Dispatch
  */
 class Module implements
     BootstrapListenerInterface,
