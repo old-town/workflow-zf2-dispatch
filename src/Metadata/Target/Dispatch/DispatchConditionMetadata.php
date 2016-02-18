@@ -3,12 +3,12 @@
  * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Storage;
+namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch;
 
 /**
- * Interface MetadataInterface
+ * Class DispatchConditionMetadata
  *
- * @package OldTown\Workflow\ZF2\Dispatch\Metadata
+ * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch
  */
 class DispatchConditionMetadata
 {
@@ -58,6 +58,8 @@ class DispatchConditionMetadata
      * @param       $type
      * @param       $handler
      * @param array $params
+     *
+     * @throws Exception\InvalidMetadataException
      */
     public function __construct($type, $handler, array $params = [])
     {
@@ -82,6 +84,8 @@ class DispatchConditionMetadata
      * @param string $type
      *
      * @return $this
+     *
+     * @throws Exception\InvalidMetadataException
      */
     public function setType($type)
     {
@@ -152,7 +156,7 @@ class DispatchConditionMetadata
 
         $handler = $this->getHandler();
         $handler = trim($handler);
-        if (empty($handler) || null === $handler) {
+        if (null === $handler || 0 === strlen($handler)) {
             $errMsg = 'Condition handler not specified';
             throw new Exception\InvalidMetadataException($errMsg);
         }

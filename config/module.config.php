@@ -6,15 +6,26 @@
 namespace OldTown\Workflow\ZF2\Dispatch;
 
 use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptions;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\AnnotationReader;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderManager;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch\AnnotationReader as DispatchAnnotationReader;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\AnnotationReader as RunParamsAnnotationReader;
+
 
 $config = [
-    'workflow_zf2_dispatch' => [
-        /** Имя адапетра для чтения метданных */
-        ModuleOptions::METADATA_READER                    => AnnotationReader::READER_NAME,
-        /** Имя менеджера для работы с адаптерами чтения метаданных */
-        ModuleOptions::METADATA_READER_MANAGER_CLASS_NAME => MetadataReaderManager::class
+    'workflow_zf2_dispatch'                 => [
+        /** Имя адапетра для чтения метданных необходимых для начали цикла диспетчиризация wf */
+        ModuleOptions::DISPATCH_METADATA_READER            => DispatchAnnotationReader::READER_NAME,
+        /** Имя адаптера для чтения метаданных необходимых для запуска wf */
+        ModuleOptions::RUN_WORKFLOW_PARAMS_METADATA_READER => RunParamsAnnotationReader::READER_NAME
+    ],
+    'workflow_zf2_dispatch_metadata_reader' => [
+        'invokables' => [
+            DispatchAnnotationReader::class  => DispatchAnnotationReader::class,
+            RunParamsAnnotationReader::class => RunParamsAnnotationReader::class
+        ],
+        'aliases'    => [
+            DispatchAnnotationReader::READER_NAME  => DispatchAnnotationReader::class,
+            RunParamsAnnotationReader::READER_NAME => RunParamsAnnotationReader::class
+        ]
     ]
 ];
 

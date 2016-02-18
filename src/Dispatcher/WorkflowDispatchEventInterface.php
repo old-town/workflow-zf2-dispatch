@@ -7,7 +7,7 @@ namespace OldTown\Workflow\ZF2\Dispatch\Dispatcher;
 
 use OldTown\Workflow\ZF2\ServiceEngine\Workflow\TransitionResultInterface;
 use Zend\Mvc\MvcEvent;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch\MetadataInterface;
 use Zend\EventManager\EventInterface;
 
 
@@ -38,6 +38,13 @@ interface WorkflowDispatchEventInterface extends EventInterface
      * @var string
      */
     const CHECK_RUN_WORKFLOW_EVENT = 'workflow.dispatch.checkRunWorkflow';
+
+    /**
+     * Подготовить метаданные для запуска workflow
+     *
+     * @var string
+     */
+    const METADATA_WORKFLOW_TO_RUN_EVENT = 'workflow.dispatch.metadataWorkflowToRun';
 
     /**
      * Запуск workflow
@@ -102,4 +109,22 @@ interface WorkflowDispatchEventInterface extends EventInterface
      * @return $this
      */
     public function setWorkflowResult(TransitionResultInterface $workflowResult);
+
+    /**
+     * Параметры для запуска workflow
+     *
+     * @return RunWorkflowParamInterface
+     *
+     * @throws Exception\WorkflowDispatchEventException
+     */
+    public function getRunWorkflowParam();
+
+    /**
+     * Устанавливает параметры для запуска workflow
+     *
+     * @param RunWorkflowParamInterface $runWorkflowParam
+     *
+     * @return $this
+     */
+    public function setRunWorkflowParam(RunWorkflowParamInterface $runWorkflowParam);
 }

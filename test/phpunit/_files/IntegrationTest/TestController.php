@@ -49,6 +49,11 @@ class TestController extends AbstractActionController
      *         @WFD\Condition(type="service", handler="httpMethod", params={"allowedHttpMethods":{"GET"}})
      *     }
      * )
+     * @WFD\WorkflowRouterMap(
+     *     managerName="workflowManagerNameRouteParam",
+     *     actionName="workflowActionNameRouteParam",
+     *     name="workflowNameRouteParam"
+     * )
      */
     public function testAction()
     {

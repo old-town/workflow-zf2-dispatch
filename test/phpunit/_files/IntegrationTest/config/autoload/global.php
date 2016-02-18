@@ -22,9 +22,9 @@ return [
                         'controller' => TestController::class,
                         'action' => 'test',
 
-                        'workflowManagerName' => 'testWorkflowManager',
-                        'workflowActionName' => 'initAction',
-                        'workflowName' => 'test',
+                        'workflowManagerNameRouteParam' => 'testWorkflowManager',
+                        'workflowActionNameRouteParam' => 'initAction',
+                        'workflowNameRouteParam' => 'test',
 
                     ],
                 ],

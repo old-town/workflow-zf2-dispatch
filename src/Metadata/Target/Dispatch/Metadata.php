@@ -3,59 +3,22 @@
  * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Storage;
+namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch;
 
 use SplObjectStorage;
+
 
 /**
  * Class Metadata
  *
- * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Storage
+ * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch
  */
 class Metadata implements MetadataInterface
 {
     /**
      * @var string
      */
-    const WORKFLOW_RUN_TYPE_DO_ACTION = 'doAction';
-
-    /**
-     * @var string
-     */
-    const WORKFLOW_RUN_INITIALIZE = 'initialize';
-
-    /**
-     * @var string
-     */
     const PREPARE_DATA_RUN_TYPE_METHOD = 'method';
-
-    /**
-     * Имя параметра роуетра, значение которого определяет имя используемого менеджера workflow
-     *
-     * @var string
-     */
-    const WORKFLOW_MANAGER_NAME_ROUTER_PARAM = 'workflowManagerName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет имя действия в workflow
-     *
-     * @var string
-     */
-    const WORKFLOW_ACTION_NAME_ROUTER_PARAM = 'workflowActionName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет имя workflow
-     *
-     * @var string
-     */
-    const WORKFLOW_NAME_ROUTER_PARAM = 'workflowName';
-
-    /**
-     *  Имя параметра роуетра, значение которого определяет id процесса workflow
-     *
-     * @var string
-     */
-    const ENTRY_ID_ROUTER_PARAM = 'entryId';
 
     /**
      * Флаг определят нужно ли запускать workflow
@@ -106,44 +69,6 @@ class Metadata implements MetadataInterface
      * @var DispatchConditionMetadata[]|SplObjectStorage
      */
     protected $conditions;
-
-    /**
-     * Имя параметра в роуетере, значение которого - имя менеджера workflow
-     *
-     * @var string
-     */
-    protected $workflowManagerNameRouterParam = self::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
-
-    /**
-     * Имя параметра в роуетере, значение которого имя вызываемого действия
-     *
-     * @var string
-     */
-    protected $workflowActionNameRouterParam = self::WORKFLOW_ACTION_NAME_ROUTER_PARAM;
-
-    /**
-     * Имя параметра в роуетере, значение которого имя workflow
-     *
-     * @var string
-     */
-    protected $workflowNameRouterParam = self::WORKFLOW_NAME_ROUTER_PARAM;
-
-    /**
-     * Имя параметра в роуетере, значение которого id запущенного процесса
-     *
-     * @var string
-     */
-    protected $entryIdRouterParam = self::ENTRY_ID_ROUTER_PARAM;
-
-    /**
-     * Разрешенные типы запуска workflow
-     *
-     * @var array
-     */
-    protected $allowWorkflowRunType = [
-        self::WORKFLOW_RUN_TYPE_DO_ACTION => self::WORKFLOW_RUN_TYPE_DO_ACTION,
-        self::WORKFLOW_RUN_INITIALIZE => self::WORKFLOW_RUN_INITIALIZE,
-    ];
 
     /**
      * Разрешенные способы запука обработчика отвечающего за подготовку данных для wf
@@ -206,14 +131,9 @@ class Metadata implements MetadataInterface
      *
      * @return $this
      *
-     * @throws Exception\InvalidMetadataException
      */
     public function setWorkflowRunType($workflowRunType)
     {
-        if (!array_key_exists($workflowRunType, $this->allowWorkflowRunType)) {
-            $errMsg = sprintf('Not allowed type %s', $workflowRunType);
-            throw new Exception\InvalidMetadataException($errMsg);
-        }
         $this->workflowRunType = (string)$workflowRunType;
 
         return $this;
@@ -261,6 +181,8 @@ class Metadata implements MetadataInterface
      * @param string $prepareDataMethod
      *
      * @return $this
+     *
+     * @throws Exception\InvalidMetadataException
      */
     public function setPrepareDataMethod($prepareDataMethod)
     {
@@ -348,103 +270,6 @@ class Metadata implements MetadataInterface
     }
 
     /**
-     * Имя параметра в роуетере, значение которого - имя менеджера workflow
-     *
-     * @return string
-     */
-    public function getWorkflowManagerNameRouterParam()
-    {
-        return $this->workflowManagerNameRouterParam;
-    }
-
-    /**
-     * Устаналвивает имя параметра в роуетере, значение которого - имя менеджера workflow
-     *
-     * @param string $workflowManagerNameRouterParam
-     *
-     * @return $this
-     */
-    public function setWorkflowManagerNameRouterParam($workflowManagerNameRouterParam)
-    {
-        $this->workflowManagerNameRouterParam = $workflowManagerNameRouterParam;
-
-        return $this;
-    }
-
-    /**
-     * Имя параметра в роуетере, значение которого имя вызываемого действия
-     *
-     * @return string
-     */
-    public function getWorkflowActionNameRouterParam()
-    {
-        return $this->workflowActionNameRouterParam;
-    }
-
-    /**
-     * Устанавливает имя параметра в роуетере, значение которого - имя вызываемого действия
-     *
-     * @param string $workflowActionNameRouterParam
-     *
-     * @return $this
-     */
-    public function setWorkflowActionNameRouterParam($workflowActionNameRouterParam)
-    {
-        $this->workflowActionNameRouterParam = $workflowActionNameRouterParam;
-
-        return $this;
-    }
-
-    /**
-     * Имя параметра в роуетере, значение которого имя workflow
-     *
-     * @return string
-     */
-    public function getWorkflowNameRouterParam()
-    {
-        return $this->workflowNameRouterParam;
-    }
-
-    /**
-     * Устанавливает имя параметра в роуетере, значение которого имя workflow
-     *
-     * @param string $workflowNameRouterParam
-     *
-     * @return $this
-     */
-    public function setWorkflowNameRouterParam($workflowNameRouterParam)
-    {
-        $this->workflowNameRouterParam = $workflowNameRouterParam;
-
-        return $this;
-    }
-
-    /**
-     * Имя параметра в роуетере, значение которого id запущенного процесса
-     *
-     * @return string
-     */
-    public function getEntryIdRouterParam()
-    {
-        return $this->entryIdRouterParam;
-    }
-
-    /**
-     * Устанавливает имя параметра в роуетере, значение которого id запущенного процесса
-     *
-     * @param string $entryIdRouterParam
-     *
-     * @return $this
-     */
-    public function setEntryIdRouterParam($entryIdRouterParam)
-    {
-        $this->entryIdRouterParam = (string)$entryIdRouterParam;
-
-        return $this;
-    }
-
-
-    /**
      * Проверка метаданных
      *
      * @throws Exception\InvalidMetadataException
@@ -475,38 +300,6 @@ class Metadata implements MetadataInterface
 
             foreach ($this->getConditions() as $condition) {
                 $condition->validate();
-            }
-        }
-
-        $workflowManagerNameRouterParam = $this->getWorkflowManagerNameRouterParam();
-        $workflowManagerNameRouterParam = trim($workflowManagerNameRouterParam);
-        if (empty($workflowManagerNameRouterParam) || null === $workflowManagerNameRouterParam) {
-            $errMsg = 'Invalid workflowManagerNameRouterParam';
-            throw new Exception\InvalidMetadataException($errMsg);
-        }
-
-        $workflowActionNameRouterParam = $this->getWorkflowActionNameRouterParam();
-        $workflowActionNameRouterParam = trim($workflowActionNameRouterParam);
-        if (empty($workflowActionNameRouterParam) || null === $workflowActionNameRouterParam) {
-            $errMsg = 'Invalid workflowActionNameRouterParam';
-            throw new Exception\InvalidMetadataException($errMsg);
-        }
-
-        if (static::WORKFLOW_RUN_INITIALIZE === $this->getWorkflowRunType()) {
-            $workflowNameRouterParam = $this->getWorkflowNameRouterParam();
-            $workflowNameRouterParam = trim($workflowNameRouterParam);
-            if (empty($workflowNameRouterParam) || null === $workflowNameRouterParam) {
-                $errMsg = 'Invalid workflowNameRouterParam';
-                throw new Exception\InvalidMetadataException($errMsg);
-            }
-        }
-
-        if (static::WORKFLOW_RUN_TYPE_DO_ACTION === $this->getWorkflowRunType()) {
-            $entryIdRouterParam = $this->getEntryIdRouterParam();
-            $entryIdRouterParam = trim($entryIdRouterParam);
-            if (empty($entryIdRouterParam) || null === $entryIdRouterParam) {
-                $errMsg = 'Invalid entryIdRouterParam';
-                throw new Exception\InvalidMetadataException($errMsg);
             }
         }
     }

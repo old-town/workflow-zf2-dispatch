@@ -11,6 +11,10 @@ use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptionsFactory;
 use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
 use OldTown\Workflow\ZF2\Dispatch\Dispatcher\Dispatcher;
 use OldTown\Workflow\ZF2\Dispatch\Dispatcher\DispatcherFactory;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderManager;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderManagerFactory;
+use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler;
+use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandlerFactory;
 
 return [
     'service_manager' => [
@@ -20,7 +24,9 @@ return [
         'factories'          => [
             ModuleOptions::class            => ModuleOptionsFactory::class,
             WorkflowDispatchListener::class => WorkflowDispatchListenerFactory::class,
-            Dispatcher::class               => DispatcherFactory::class
+            Dispatcher::class               => DispatcherFactory::class,
+            MetadataReaderManager::class    => MetadataReaderManagerFactory::class,
+            RouteHandler::class             => RouteHandlerFactory::class
 
         ],
         'abstract_factories' => [

@@ -3,14 +3,14 @@
  * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace  OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Exception;
+namespace  OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\Exception;
 
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Exception\RuntimeException as Exception;
+use OldTown\Workflow\ZF2\Dispatch\Exception\RuntimeException as Exception;
 
 /**
  * Class RuntimeException
  *
- * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Exception
+ * @package OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\Exception
  */
 class RuntimeException extends Exception implements
     ExceptionInterface

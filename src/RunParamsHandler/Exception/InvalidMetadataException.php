@@ -3,12 +3,12 @@
  * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace  OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Exception;
+namespace  OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\Exception;
 
 /**
  * Class InvalidMetadataException
  *
- * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Exception
+ * @package OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\Exception
  */
 class InvalidMetadataException extends RuntimeException
 {

@@ -21,7 +21,7 @@ class WorkflowDispatchListenerFactory implements  FactoryInterface
      * @param ServiceLocatorInterface $serviceLocator
      *
      * @return WorkflowDispatchListener
-     *
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
@@ -32,8 +32,6 @@ class WorkflowDispatchListenerFactory implements  FactoryInterface
             'dispatcher' => $dispatcher
         ];
 
-        $service = new WorkflowDispatchListener($options);
-
-        return $service;
+        return new WorkflowDispatchListener($options);
     }
 }

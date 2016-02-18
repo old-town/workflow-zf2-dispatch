@@ -3,14 +3,12 @@
  * @link https://github.com/old-town/workflow-zf2-dispatch
  * @author  Malofeykin Andrey  <and-rey2@yandex.ru>
  */
-namespace OldTown\Workflow\ZF2\Dispatch\Metadata\Reader;
-
-use \OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
+namespace OldTown\Workflow\ZF2\Dispatch\Metadata;
 
 /**
  * Interface ReaderInterface
  *
- * @package OldTown\Workflow\ZF2\Dispatch\Metadata\Reader
+ * @package OldTown\Workflow\ZF2\Dispatch\Metadata
  */
 interface ReaderInterface
 {

@@ -6,6 +6,9 @@
 namespace OldTown\Workflow\ZF2\Dispatch;
 
 
+use Zend\ModuleManager\Listener\ServiceListenerInterface;
+use Zend\ModuleManager\ModuleManager;
+use Zend\ModuleManager\ModuleManagerInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 use Zend\EventManager\EventInterface;
@@ -14,7 +17,12 @@ use Zend\ModuleManager\Feature\ConfigProviderInterface;
 use Zend\ModuleManager\Feature\BootstrapListenerInterface;
 use Zend\ModuleManager\Feature\DependencyIndicatorInterface;
 use OldTown\Workflow\ZF2\Dispatch\Listener\WorkflowDispatchListener;
-
+use Zend\ServiceManager\ServiceLocatorAwareTrait;
+use Zend\ModuleManager\Feature\InitProviderInterface;
+use Zend\ServiceManager\ServiceLocatorInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderManager;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderProviderInterface;
+use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler;
 
 /**
  * Class Module
@@ -25,8 +33,10 @@ class Module implements
     BootstrapListenerInterface,
     ConfigProviderInterface,
     AutoloaderProviderInterface,
-    DependencyIndicatorInterface
+    DependencyIndicatorInterface,
+    InitProviderInterface
 {
+    use ServiceLocatorAwareTrait;
 
     /**
      * Имя секции в конфиги приложения
@@ -59,9 +69,15 @@ class Module implements
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
 
+        $sm = $e->getApplication()->getServiceManager();
+
         /** @var WorkflowDispatchListener $injectWorkflowListener */
-        $injectWorkflowListener = $e->getApplication()->getServiceManager()->get(WorkflowDispatchListener::class);
+        $injectWorkflowListener = $sm->get(WorkflowDispatchListener::class);
         $eventManager->attach($injectWorkflowListener);
+
+        /** @var RouteHandler $routeHandler */
+        $routeHandler = $sm->get(RouteHandler::class);
+        $eventManager->attach($routeHandler);
     }
 
 
@@ -87,4 +103,32 @@ class Module implements
         );
     }
 
+
+    /**
+     *
+     * @param ModuleManagerInterface $manager
+     * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
+     * @throws Exception\ErrorInitModuleException
+     */
+    public function init(ModuleManagerInterface $manager)
+    {
+
+        if (!$manager instanceof ModuleManager) {
+            $errMsg =sprintf('Module manager not implement %s', ModuleManager::class);
+            throw new Exception\ErrorInitModuleException($errMsg);
+        }
+        /** @var ModuleManager $manager */
+
+        /** @var ServiceLocatorInterface $sm */
+        $sm = $manager->getEvent()->getParam('ServiceManager');
+
+        /** @var ServiceListenerInterface $serviceListener */
+        $serviceListener = $sm->get('ServiceListener');
+        $serviceListener->addServiceManager(
+            MetadataReaderManager::class,
+            'workflow_zf2_dispatch_metadata_reader',
+            MetadataReaderProviderInterface::class,
+            'getWorkflowDispatchMetadataReaderConfig'
+        );
+    }
 } 

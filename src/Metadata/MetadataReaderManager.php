@@ -5,10 +5,7 @@
  */
 namespace OldTown\Workflow\ZF2\Dispatch\Metadata;
 
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\ReaderInterface;
 use Zend\ServiceManager\AbstractPluginManager;
-use Zend\ServiceManager\ConfigInterface;
-use \OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\AnnotationReader;
 
 /**
  * Class MetadataReaderManager
@@ -17,27 +14,6 @@ use \OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\AnnotationReader;
  */
 class MetadataReaderManager extends AbstractPluginManager implements MetadataReaderManagerInterface
 {
-    /**
-     * @param ConfigInterface|null $configuration
-     */
-    public function __construct(ConfigInterface $configuration = null)
-    {
-        $this->init();
-        parent::__construct($configuration);
-    }
-
-    /**
-     * Инициализация
-     *
-     * @return void
-     */
-    protected function init()
-    {
-        $this->invokableClasses = [
-            'annotation' => AnnotationReader::class
-        ];
-    }
-
     /**
      * @param mixed $plugin
      *

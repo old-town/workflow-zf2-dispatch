@@ -17,43 +17,43 @@ class ModuleOptions extends AbstractOptions
     /**
      * @var string
      */
-    const METADATA_READER = 'metadataReader';
+    const DISPATCH_METADATA_READER = 'dispatchMetadataReader';
 
     /**
      * @var string
      */
-    const METADATA_READER_MANAGER_CLASS_NAME = 'metadataReaderManagerClassName';
+    const RUN_WORKFLOW_PARAMS_METADATA_READER = 'runWorkflowParamsMetadataReader';
 
     /**
-     * Имя адаптера для получения метаданных
+     * Имя адаптера для получения метаданных необходимых для начали цикла диспетчирезации workflow
      *
      * @var string
      */
-    protected $metadataReader;
+    protected $dispatchMetadataReader;
 
     /**
-     * Класс менеджера для получения адаптеров метаданных
+     * Имя адаптера для получения метаданных необходимых для  запуска workflow
      *
      * @var string
      */
-    protected $metadataReaderManagerClassName;
+    protected $runWorkflowParamsMetadataReader;
 
     /**
      * @return string
      */
-    public function getMetadataReader()
+    public function getDispatchMetadataReader()
     {
-        return $this->metadataReader;
+        return $this->dispatchMetadataReader;
     }
 
     /**
-     * @param string $metadataReader
+     * @param string $dispatchMetadataReader
      *
      * @return $this
      */
-    public function setMetadataReader($metadataReader)
+    public function setDispatchMetadataReader($dispatchMetadataReader)
     {
-        $this->metadataReader = $metadataReader;
+        $this->dispatchMetadataReader = $dispatchMetadataReader;
 
         return $this;
     }
@@ -61,19 +61,19 @@ class ModuleOptions extends AbstractOptions
     /**
      * @return string
      */
-    public function getMetadataReaderManagerClassName()
+    public function getRunWorkflowParamsMetadataReader()
     {
-        return $this->metadataReaderManagerClassName;
+        return $this->runWorkflowParamsMetadataReader;
     }
 
     /**
-     * @param string $metadataReaderManagerClassName
+     * @param string $runWorkflowParamsMetadataReader
      *
      * @return $this
      */
-    public function setMetadataReaderManagerClassName($metadataReaderManagerClassName)
+    public function setRunWorkflowParamsMetadataReader($runWorkflowParamsMetadataReader)
     {
-        $this->metadataReaderManagerClassName = $metadataReaderManagerClassName;
+        $this->runWorkflowParamsMetadataReader = $runWorkflowParamsMetadataReader;
 
         return $this;
     }

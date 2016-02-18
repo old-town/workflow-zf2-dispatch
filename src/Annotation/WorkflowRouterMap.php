@@ -5,7 +5,7 @@
  */
 namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\Metadata;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\MetadataInterface;
 
 /**
  * Class WorkflowRouterMap
@@ -20,20 +20,20 @@ final class WorkflowRouterMap
     /**
      * @var string
      */
-    public $managerName = Metadata::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
+    public $managerName = MetadataInterface::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
 
     /**
      * @var string
      */
-    public $actionName = Metadata::WORKFLOW_ACTION_NAME_ROUTER_PARAM;
+    public $actionName = MetadataInterface::WORKFLOW_ACTION_NAME_ROUTER_PARAM;
 
     /**
      * @var string
      */
-    public $name = Metadata::WORKFLOW_NAME_ROUTER_PARAM;
+    public $name = MetadataInterface::WORKFLOW_NAME_ROUTER_PARAM;
 
     /**
-     * @var integer
+     * @var string
      */
-    public $entryId = Metadata::ENTRY_ID_ROUTER_PARAM;
+    public $entryId = MetadataInterface::ENTRY_ID_ROUTER_PARAM;
 }

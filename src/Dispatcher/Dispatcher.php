@@ -8,9 +8,9 @@ namespace OldTown\Workflow\ZF2\Dispatch\Dispatcher;
 use OldTown\Workflow\TransientVars\TransientVarsInterface;
 use Zend\EventManager\EventManagerAwareTrait;
 use OldTown\Workflow\ZF2\ServiceEngine\Workflow as WorkflowService;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Reader\ReaderInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\ReaderInterface;
 use ReflectionClass;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch\MetadataInterface;
 use Zend\Mvc\Controller\AbstractController;
 use Traversable;
 use Zend\Stdlib\ArrayUtils;
@@ -19,6 +19,7 @@ use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 use OldTown\Workflow\TransientVars\BaseTransientVars;
 use OldTown\Workflow\ZF2\ServiceEngine\Workflow\TransitionResultInterface;
+
 
 /**
  * Class Dispatcher
@@ -89,6 +90,8 @@ class Dispatcher implements DispatcherInterface
      * @param WorkflowDispatchEventInterface $event
      *
      * @return void
+     *
+     * @throws Exception\RunWorkflowParamException
      */
     public function dispatch(WorkflowDispatchEventInterface $event)
     {
@@ -130,6 +133,18 @@ class Dispatcher implements DispatcherInterface
         }
 
         if (true === $flagRunWorkflow) {
+            $runWorkflowParamResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::METADATA_WORKFLOW_TO_RUN_EVENT, $event, function ($result) {
+                return ($result instanceof RunWorkflowParamInterface);
+            });
+            $runWorkflowParamResult = $runWorkflowParamResults->last();
+
+            if (!$runWorkflowParamResult instanceof RunWorkflowParamInterface) {
+                $errMsg = 'There is no evidence to launch workflow';
+                throw new Exception\RunWorkflowParamException($errMsg);
+            }
+            $event->setRunWorkflowParam($runWorkflowParamResult);
+
+
             $runWorkflowResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::RUN_WORKFLOW_EVENT, $event, function ($result) {
                 return ($result instanceof TransitionResultInterface);
             });
@@ -321,34 +336,14 @@ class Dispatcher implements DispatcherInterface
      *
      * @throws Exception\InvalidArgumentException
      * @throws  Exception\WorkflowDispatchEventException
+     * @throws \OldTown\Workflow\ZF2\ServiceEngine\Exception\InvalidInitializeWorkflowEntryException
+     * @throws \OldTown\Workflow\ZF2\ServiceEngine\Exception\DoActionException
      */
     public function onRunWorkflowHandler(WorkflowDispatchEventInterface $e)
     {
-        $mvcEvent = $e->getMvcEvent();
+        $runWorkflowParam = $e->getRunWorkflowParam();
+        $runWorkflowParam->valid();
 
-        $routeMatch = $mvcEvent->getRouteMatch();
-        if (!$routeMatch) {
-            return null;
-        }
-
-        $metadata = $e->getMetadata();
-
-        $workflowManagerNameParam = $metadata->getWorkflowManagerNameRouterParam();
-        $workflowManagerName = $routeMatch->getParam($workflowManagerNameParam, null);
-        if (null === $workflowManagerName) {
-            $errMsg = sprintf('Param "%s" not found', $workflowManagerNameParam);
-            throw new Exception\InvalidArgumentException($errMsg);
-        }
-
-        $workflowActionNameParam = $metadata->getWorkflowActionNameRouterParam();
-        $workflowActionName = $routeMatch->getParam($workflowActionNameParam, null);
-        if (null === $workflowActionName) {
-            $errMsg = sprintf('Param "%s" not found', $workflowActionNameParam);
-            throw new Exception\InvalidArgumentException($errMsg);
-        }
-
-
-        $workflowActivity = $metadata->getWorkflowRunType();
         $transientVars = $this->factoryTransientVars();
 
         $prepareData = $e->getPrepareData();
@@ -356,26 +351,22 @@ class Dispatcher implements DispatcherInterface
             $transientVars[$key] = $value;
         }
 
-        $result = null;
-        switch ($workflowActivity) {
-            case 'initialize': {
-                $workflowNameParam = $metadata->getWorkflowNameRouterParam();
-                $workflowName = $routeMatch->getParam($workflowNameParam, null);
-                if (null === $workflowName) {
-                    $errMsg = sprintf('Param "%s" not found', $workflowNameParam);
-                    throw new Exception\InvalidArgumentException($errMsg);
-                }
+        $runWorkflowParam = $e->getRunWorkflowParam();
+        $runWorkflowParam->valid();
 
+        $workflowManagerName = $runWorkflowParam->getManagerName();
+        $workflowActionName = $runWorkflowParam->getActionName();
+
+        $workflowActivity = $runWorkflowParam->getRunType();
+        $result = null;
+        switch ($runWorkflowParam->getRunType()) {
+            case RunWorkflowParamInterface::WORKFLOW_RUN_INITIALIZE: {
+                $workflowName = $runWorkflowParam->getWorkflowName();
                 $result = $this->getWorkflowService()->initialize($workflowManagerName, $workflowName, $workflowActionName, $transientVars);
                 break;
             }
-            case 'doAction': {
-                $entryIdParam = $metadata->getEntryIdRouterParam();
-                $entryId = $routeMatch->getParam($entryIdParam, null);
-                if (null === $entryId) {
-                    $errMsg = sprintf('Param "%s" not found', $entryIdParam);
-                    throw new Exception\InvalidArgumentException($errMsg);
-                }
+            case RunWorkflowParamInterface::WORKFLOW_RUN_TYPE_DO_ACTION: {
+                $entryId = $runWorkflowParam->getEntryId();
 
                 $result = $this->getWorkflowService()->doAction($workflowManagerName, $entryId, $workflowActionName, $transientVars);
                 break;

@@ -8,7 +8,8 @@ namespace OldTown\Workflow\ZF2\Dispatch\Dispatcher;
 use OldTown\Workflow\ZF2\ServiceEngine\Workflow\TransitionResultInterface;
 use Zend\EventManager\Event;
 use Zend\Mvc\MvcEvent;
-use OldTown\Workflow\ZF2\Dispatch\Metadata\Storage\MetadataInterface;
+use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\Dispatch\MetadataInterface;
+
 
 
 /**
@@ -43,7 +44,16 @@ class WorkflowDispatchEvent extends Event implements WorkflowDispatchEventInterf
     protected $workflowResult = [];
 
     /**
+     * Параметры для запуска workflow
+     *
+     * @var RunWorkflowParamInterface
+     */
+    protected $runWorkflowParam;
+
+    /**
      * @return MvcEvent
+     *
+     * @throws Exception\WorkflowDispatchEventException
      */
     public function getMvcEvent()
     {
@@ -68,6 +78,8 @@ class WorkflowDispatchEvent extends Event implements WorkflowDispatchEventInterf
 
     /**
      * @return MetadataInterface
+     *
+     * @throws Exception\WorkflowDispatchEventException
      */
     public function getMetadata()
     {
@@ -136,6 +148,36 @@ class WorkflowDispatchEvent extends Event implements WorkflowDispatchEventInterf
     public function setWorkflowResult(TransitionResultInterface $workflowResult)
     {
         $this->workflowResult = $workflowResult;
+
+        return $this;
+    }
+
+    /**
+     * Параметры для запуска workflow
+     *
+     * @return RunWorkflowParamInterface
+     *
+     * @throws Exception\WorkflowDispatchEventException
+     */
+    public function getRunWorkflowParam()
+    {
+        if (null === $this->runWorkflowParam) {
+            $errMsg = 'runWorkflowParam not found';
+            throw new Exception\WorkflowDispatchEventException($errMsg);
+        }
+        return $this->runWorkflowParam;
+    }
+
+    /**
+     * Устанавливает параметры для запуска workflow
+     *
+     * @param RunWorkflowParamInterface $runWorkflowParam
+     *
+     * @return $this
+     */
+    public function setRunWorkflowParam(RunWorkflowParamInterface $runWorkflowParam)
+    {
+        $this->runWorkflowParam = $runWorkflowParam;
 
         return $this;
     }
