@@ -24,5 +24,5 @@ entryId           |entryId              |id запущенного процес�
 Если возникает потребность, в других именах параметров роутера, то можно использовать анотацию.
 
 ```php
-@WFD\WorkflowRouterMap(managerName="workflowManagerCustomName", actionName="workflowActionCustomName", name="workflowCustomName", entryId="customEntryId")
+@WFD\RunWorkflowParamFromRoute(managerName="workflowManagerCustomName", actionName="workflowActionCustomName", name="workflowCustomName", entryId="customEntryId")
 ```

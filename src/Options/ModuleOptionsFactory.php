@@ -32,7 +32,6 @@ class ModuleOptionsFactory implements FactoryInterface
         if (array_key_exists(Module::CONFIG_KEY, $appConfig)) {
             $config = $appConfig[Module::CONFIG_KEY];
         }
-        $moduleOptions = new ModuleOptions($config);
-        return $moduleOptions;
+        return new ModuleOptions($config);
     }
 }

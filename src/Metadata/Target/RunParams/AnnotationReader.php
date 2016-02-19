@@ -46,8 +46,8 @@ class AnnotationReader extends AbstractAnnotationReader
         $metadata = new Metadata();
 
 
-        /** @var Annotation\WorkflowRouterMap|null $workflowRouterMapAnnotation */
-        $workflowRouterMapAnnotation = $this->getReader()->getMethodAnnotation($rMethod, Annotation\WorkflowRouterMap::class);
+        /** @var Annotation\RunWorkflowParamFromRoute|null $workflowRouterMapAnnotation */
+        $workflowRouterMapAnnotation = $this->getReader()->getMethodAnnotation($rMethod, Annotation\RunWorkflowParamFromRoute::class);
         if ($workflowRouterMapAnnotation) {
             $metadata->setWorkflowManagerNameRouterParam($workflowRouterMapAnnotation->managerName);
             $metadata->setWorkflowActionNameRouterParam($workflowRouterMapAnnotation->actionName);

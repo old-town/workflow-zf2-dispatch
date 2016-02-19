@@ -8,14 +8,14 @@ namespace  OldTown\Workflow\ZF2\Dispatch\Annotation;
 use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\MetadataInterface;
 
 /**
- * Class WorkflowRouterMap
+ * Class RunWorkflowParamFromRoute
  *
  * @package OldTown\Workflow\ZF2\Dispatch\Annotation
  *
  * @Annotation
  * @Target("METHOD")
  */
-final class WorkflowRouterMap
+final class RunWorkflowParamFromRoute
 {
     /**
      * @var string

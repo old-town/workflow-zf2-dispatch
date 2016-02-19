@@ -6,6 +6,7 @@
 namespace OldTown\Workflow\ZF2\Dispatch\RunParamsHandler;
 
 use Zend\EventManager\AbstractListenerAggregate;
+use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerInterface;
 use OldTown\Workflow\ZF2\Dispatch\Dispatcher\Dispatcher;
 use OldTown\Workflow\ZF2\Dispatch\Dispatcher\WorkflowDispatchEventInterface;
@@ -13,6 +14,10 @@ use OldTown\Workflow\ZF2\Dispatch\Dispatcher\RunWorkflowParam;
 use OldTown\Workflow\ZF2\Dispatch\Metadata\ReaderInterface;
 use Zend\Mvc\Controller\AbstractController;
 use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\MetadataInterface;
+use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler\ResolveEntryIdEvent;
+use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler\ResolveEntryIdEventInterface;
+use ReflectionClass;
+
 
 /**
  * Class RouteHandler
@@ -21,12 +26,22 @@ use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\MetadataInterface;
  */
 class RouteHandler extends AbstractListenerAggregate
 {
+    use EventManagerAwareTrait;
+
     /**
      * Адаптер для чтения метаданных
      *
      * @var ReaderInterface
      */
     protected $metadataReader;
+
+    /**
+     * Имя класса событие, бросаемого когда требуется определить entryId
+     *
+     * @var string
+     */
+    protected $resolveEntryIdEventClassName = ResolveEntryIdEvent::class;
+
 
     /**
      * RouteHandler constructor.
@@ -65,6 +80,7 @@ class RouteHandler extends AbstractListenerAggregate
      * @return RunWorkflowParam
      *
      * @throws Exception\InvalidMetadataException
+     * @throws Exception\ResolveEntryIdEventException
      */
     public function onMetadataWorkflowToRun(WorkflowDispatchEventInterface $e)
     {
@@ -101,30 +117,98 @@ class RouteHandler extends AbstractListenerAggregate
         $workflowActionNameParam = $metadata->getWorkflowActionNameRouterParam();
         $workflowActionName = $routeMatch->getParam($workflowActionNameParam, null);
 
+        if (null === $workflowManagerName || null === $workflowActionName) {
+            return null;
+        }
+
+        $runType = $e->getMetadata()->getWorkflowRunType();
+
         $workflowNameParam = $metadata->getWorkflowNameRouterParam();
         $workflowName = $routeMatch->getParam($workflowNameParam, null);
 
-        $entryIdParam = $metadata->getEntryIdRouterParam();
-        $entryId = $routeMatch->getParam($entryIdParam, null);
 
 
-        $runType = $e->getMetadata()->getWorkflowRunType();
-        if (null !== $workflowManagerName && null !== $workflowActionName
-            && ((RunWorkflowParam::WORKFLOW_RUN_INITIALIZE === $runType && null !== $workflowName && null === $entryId)
-                ||(RunWorkflowParam::WORKFLOW_RUN_TYPE_DO_ACTION === $runType && null !== $entryId && null === $workflowName))
-        ) {
-            $runWorkflowParam = new RunWorkflowParam();
-            $runWorkflowParam->setRunType($runType);
-            $runWorkflowParam->setManagerName($workflowManagerName);
-            $runWorkflowParam->setActionName($workflowActionName);
-            $runWorkflowParam->setEntryId($entryId);
+        $runWorkflowParam = new RunWorkflowParam();
+        $runWorkflowParam->setRunType($runType);
+        $runWorkflowParam->setManagerName($workflowManagerName);
+        $runWorkflowParam->setActionName($workflowActionName);
+
+        if (RunWorkflowParam::WORKFLOW_RUN_INITIALIZE === $runType && null !== $workflowName) {
             $runWorkflowParam->setWorkflowName($workflowName);
 
             return $runWorkflowParam;
         }
 
+
+        if (RunWorkflowParam::WORKFLOW_RUN_TYPE_DO_ACTION === $runType && null === $workflowName) {
+            $event = $this->resolveEntryIdEventFactory();
+            $resolveEntryIdResults = $this->getEventManager()->trigger(ResolveEntryIdEventInterface::RESOLVE_ENTRY_ID_EVENT, $event, function ($item) {
+                return is_numeric($item);
+            });
+            $resolveEntryIdResult = $resolveEntryIdResults->last();
+
+            if (is_numeric($resolveEntryIdResult)) {
+                $runWorkflowParam->setEntryId($resolveEntryIdResult);
+
+                return $runWorkflowParam;
+            }
+        }
+
+
         return null;
     }
+
+    /**
+     * Подписчики по умолчанию
+     *
+     * @return void
+     */
+    public function attachDefaultListeners()
+    {
+        $this->getEventManager()->attach(ResolveEntryIdEventInterface::RESOLVE_ENTRY_ID_EVENT, [$this, 'onResolveEntryIdHandler']);
+    }
+
+    /**
+     * Определение entryId на основе параметров роута
+     *
+     * @param ResolveEntryIdEventInterface $event
+     *
+     * @return integer|null
+     *
+     * @throws Exception\InvalidMetadataException
+     */
+    public function onResolveEntryIdHandler(ResolveEntryIdEventInterface $event)
+    {
+        $mvcEvent = $event->getWorkflowDispatchEvent()->getMvcEvent();
+        $controller = $mvcEvent->getTarget();
+        if (!$controller instanceof AbstractController) {
+            return null;
+        }
+
+        $routeMatch = $mvcEvent->getRouteMatch();
+        if (!$routeMatch) {
+            return null;
+        }
+
+        $action = $routeMatch->getParam('action', 'not-found');
+        $actionMethod = AbstractController::getMethodFromAction($action);
+
+        if (!method_exists($controller, $actionMethod)) {
+            return null;
+        }
+
+        $controllerClassName = get_class($controller);
+        $metadata = $this->getMetadataReader()->loadMetadataForAction($controllerClassName, $actionMethod);
+
+        if (!$metadata instanceof MetadataInterface) {
+            $errMsg = sprintf('Metadata not implement %s', MetadataInterface::class);
+            throw new Exception\InvalidMetadataException($errMsg);
+        }
+
+        $entryIdParam = $metadata->getEntryIdRouterParam();
+        return $routeMatch->getParam($entryIdParam, null);
+    }
+
 
     /**
      * @return ReaderInterface
@@ -144,5 +228,51 @@ class RouteHandler extends AbstractListenerAggregate
         $this->metadataReader = $metadataReader;
 
         return $this;
+    }
+
+    /**
+     * Имя класса событие, бросаемого когда требуется определить entryId
+     *
+     * @return string
+     */
+    public function getResolveEntryIdEventClassName()
+    {
+        return $this->resolveEntryIdEventClassName;
+    }
+
+    /**
+     * Устанавливает имя класса событие, бросаемого когда требуется определить entryId
+     *
+     * @param string $resolveEntryIdEventClassName
+     *
+     * @return $this
+     */
+    public function setResolveEntryIdEventClassName($resolveEntryIdEventClassName)
+    {
+        $this->resolveEntryIdEventClassName = $resolveEntryIdEventClassName;
+
+        return $this;
+    }
+
+    /**
+     * Фабрика для создания объекта события бросаемого когда нужно определить значение entryId
+     *
+     * @return ResolveEntryIdEventInterface
+     *
+     * @throws Exception\ResolveEntryIdEventException
+     */
+    public function resolveEntryIdEventFactory()
+    {
+        $className = $this->getResolveEntryIdEventClassName();
+
+        $r = new ReflectionClass($className);
+        $event = $r->newInstance();
+
+        if (!$event instanceof ResolveEntryIdEventInterface) {
+            $errMsg = sprintf('ResolveEntryIdEvent not implement %s', ResolveEntryIdEventInterface::class);
+            throw new Exception\ResolveEntryIdEventException($errMsg);
+        }
+
+        return $event;
     }
 }

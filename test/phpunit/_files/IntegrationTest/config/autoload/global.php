@@ -61,6 +61,16 @@ return [
     ],
 
 
+//    'test' => [
+//        'workflowManagerName' => [
+//            'projectPrototype' => [
+//                'aliasEntity' => [
+//                    'class'=> 'asdfasdfasdfasdfasdf'
+//                    ''
+//                ]
+//            ]
+//        ]
+//    ],
 
 
 
