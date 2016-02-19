@@ -140,8 +140,15 @@ class RouteHandler extends AbstractListenerAggregate
         }
 
 
-        if (RunWorkflowParam::WORKFLOW_RUN_TYPE_DO_ACTION === $runType && null === $workflowName) {
+        if (RunWorkflowParam::WORKFLOW_RUN_TYPE_DO_ACTION === $runType) {
             $event = $this->resolveEntryIdEventFactory();
+            $event->setWorkflowDispatchEvent($e);
+            $event->setRunType($runType);
+            $event->setActionName($workflowActionName);
+            $event->setManagerName($workflowManagerName);
+            $event->setWorkflowName($workflowName);
+
+
             $resolveEntryIdResults = $this->getEventManager()->trigger(ResolveEntryIdEventInterface::RESOLVE_ENTRY_ID_EVENT, $event, function ($item) {
                 return is_numeric($item);
             });

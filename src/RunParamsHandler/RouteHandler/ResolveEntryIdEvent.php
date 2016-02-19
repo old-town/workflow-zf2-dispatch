@@ -16,11 +16,6 @@ use Zend\EventManager\Event;
 class ResolveEntryIdEvent extends Event implements ResolveEntryIdEventInterface
 {
     /**
-     * @var string
-     */
-    const RESOLVE_ENTRY_ID_EVENT = 'workflow.dispatch.resolveEntryId';
-
-    /**
      *
      * @var WorkflowDispatchEventInterface
      */
@@ -46,6 +41,13 @@ class ResolveEntryIdEvent extends Event implements ResolveEntryIdEventInterface
      * @var string
      */
     protected $actionName;
+
+    /**
+     * Имя workflow
+     *
+     * @var string
+     */
+    protected $workflowName;
 
     /**
      * @return WorkflowDispatchEventInterface
@@ -135,6 +137,30 @@ class ResolveEntryIdEvent extends Event implements ResolveEntryIdEventInterface
     public function setActionName($actionName)
     {
         $this->actionName = $actionName;
+
+        return $this;
+    }
+
+    /**
+     * Возвращает имя workflow
+     *
+     * @return string
+     */
+    public function getWorkflowName()
+    {
+        return $this->workflowName;
+    }
+
+    /**
+     * Устанавливает имя workflow
+     *
+     * @param string $workflowName
+     *
+     * @return $this
+     */
+    public function setWorkflowName($workflowName)
+    {
+        $this->workflowName = $workflowName;
 
         return $this;
     }

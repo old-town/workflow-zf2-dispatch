@@ -31,4 +31,68 @@ interface ResolveEntryIdEventInterface extends EventInterface
      * @return $this
      */
     public function setWorkflowDispatchEvent(WorkflowDispatchEventInterface $workflowDispatchEvent);
+
+    /**
+     * Тип запуска workflow (doAction или initialize)
+     *
+     * @return string
+     */
+    public function getRunType();
+
+    /**
+     * Устанавливает тип запуска workflow (doAction или initialize)
+     *
+     * @param string $runType
+     *
+     * @return $this
+     */
+    public function setRunType($runType);
+
+    /**
+     * Имя менеджера workflow
+     *
+     * @return string
+     */
+    public function getManagerName();
+
+    /**
+     * Устанавливает имя менеджера workflow
+     *
+     * @param string $managerName
+     *
+     * @return $this
+     */
+    public function setManagerName($managerName);
+
+    /**
+     * Имя запускаемого действия wf
+     *
+     * @return string
+     */
+    public function getActionName();
+
+    /**
+     * Устанавливает имя запускаемого действия wf
+     *
+     * @param string $actionName
+     *
+     * @return $this
+     */
+    public function setActionName($actionName);
+
+    /**
+     * Возвращает имя workflow
+     *
+     * @return string
+     */
+    public function getWorkflowName();
+
+    /**
+     * Устанавливает имя workflow
+     *
+     * @param string $workflowName
+     *
+     * @return $this
+     */
+    public function setWorkflowName($workflowName);
 }
