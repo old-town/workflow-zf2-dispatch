@@ -4,6 +4,7 @@ pages:
     - 'Общая концепция.': concept.md
     - 'Жизненный цикл диспетчирезации.': life-cicle.md
     - 'Метаданные на основе анотаций.': metada-annotation.md
+    - 'Получение параметров запуска wf из роутера': route-run-params-handler.md
 site_name: workflow-zf2-dispatch
 site_description: 'Модуль для автоматического запуска workflow в проектах реализованных на zf2.'
 repo_url: 'https://github.com/old-town/workflow-zf2-dispatch'
