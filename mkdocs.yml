@@ -2,7 +2,7 @@ docs_dir: doc/book/ru
 pages:
     - index.md
     - 'Общая концепция.': concept.md
-    - 'Жизненный цикл диспетчирезации.': life-cicle.md
+    - 'Жизненный цикл диспетчирезации.': life-cycle.md
     - 'Метаданные на основе анотаций.': metada-annotation.md
     - 'Получение параметров запуска wf из роутера': route-run-params-handler.md
 site_name: workflow-zf2-dispatch
