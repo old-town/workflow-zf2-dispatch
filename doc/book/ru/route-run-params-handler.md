@@ -1,5 +1,8 @@
 #Получение параметров запуска wf из роутера
 
+В модуле реализован обработчик события [workflow.dispatch.metadataWorkflowToRun](./workflow.dispatch.metadataWorkflowToRun)
+
+
 Для запуска workflow необходимы следующие данные:
 
 * managerName - имя менеджера workflow
