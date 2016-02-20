@@ -1,6 +1,6 @@
 #Получение параметров запуска wf из роутера
 
-В модуле реализован обработчик события [workflow.dispatch.metadataWorkflowToRun](./life-cycle.md)
+В модуле реализован обработчик события [workflow.dispatch.metadataWorkflowToRun](./life-cycle.md#workflow.dispatch.metadataWorkflowToRun)
 
 
 Для запуска workflow необходимы следующие данные:
