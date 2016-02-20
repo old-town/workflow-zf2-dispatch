@@ -48,7 +48,7 @@ workflow.dispatch.run                  | Запуск wf
 Если необходимо контролировать процесс запуска workflow, то можно подписаться на данное событие. В случае если хотя бы
 один обработчик события возвращает false, то wf запущенна не будет.
 
-### [Собыите workflow.dispatch.metadataWorkflowToRun](#workflow.dispatch.metadataWorkflowToRun)
+### Собыите workflow.dispatch.metadataWorkflowToRun(#workflow.dispatch.metadataWorkflowToRun)
 
 Для запуска нового процесса workflow либо для изменения состояния уже запущенного процесса необходимо знать:
 
