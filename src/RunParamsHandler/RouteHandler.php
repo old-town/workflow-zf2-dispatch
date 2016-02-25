@@ -77,7 +77,7 @@ class RouteHandler extends AbstractListenerAggregate
      *
      * @param WorkflowDispatchEventInterface $e
      *
-     * @return RunWorkflowParam
+     * @return RunWorkflowParam|null
      *
      * @throws Exception\InvalidMetadataException
      * @throws Exception\ResolveEntryIdEventException
