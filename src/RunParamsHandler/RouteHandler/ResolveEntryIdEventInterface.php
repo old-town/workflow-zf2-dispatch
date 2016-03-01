@@ -95,4 +95,20 @@ interface ResolveEntryIdEventInterface extends EventInterface
      * @return $this
      */
     public function setWorkflowName($workflowName);
+
+    /**
+     * Псевдоним для доступа к менеджеру workflow
+     *
+     * @return string
+     */
+    public function getManagerAlias();
+
+    /**
+     * Устанавливает псевдоним для доступа к менеджеру workflow
+     *
+     * @param string|null $managerAlias
+     *
+     * @return $this
+     */
+    public function setManagerAlias($managerAlias);
 }

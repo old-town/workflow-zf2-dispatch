@@ -5,6 +5,7 @@
  */
 namespace OldTown\Workflow\ZF2\Dispatch\RunParamsHandler;
 
+use OldTown\Workflow\ZF2\ServiceEngine\WorkflowServiceInterface;
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerAwareTrait;
 use Zend\EventManager\EventManagerInterface;
@@ -17,7 +18,7 @@ use OldTown\Workflow\ZF2\Dispatch\Metadata\Target\RunParams\MetadataInterface;
 use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler\ResolveEntryIdEvent;
 use OldTown\Workflow\ZF2\Dispatch\RunParamsHandler\RouteHandler\ResolveEntryIdEventInterface;
 use ReflectionClass;
-
+use Zend\Log\LoggerInterface;
 
 /**
  * Class RouteHandler
@@ -42,6 +43,19 @@ class RouteHandler extends AbstractListenerAggregate
      */
     protected $resolveEntryIdEventClassName = ResolveEntryIdEvent::class;
 
+    /**
+     * Сервис для работы с workflow
+     *
+     * @var WorkflowServiceInterface
+     */
+    protected $workflowService;
+
+    /**
+     * Логер
+     *
+     * @var LoggerInterface
+     */
+    protected $log;
 
     /**
      * RouteHandler constructor.
@@ -51,17 +65,23 @@ class RouteHandler extends AbstractListenerAggregate
     public function __construct(array $options = [])
     {
         $initOptions = [
-            array_key_exists('metadataReader', $options) ? $options['metadataReader'] : null
+            array_key_exists('metadataReader', $options) ? $options['metadataReader'] : null,
+            array_key_exists('workflowService', $options) ? $options['workflowService'] : null,
+            array_key_exists('log', $options) ? $options['log'] : null,
         ];
         call_user_func_array([$this, 'init'], $initOptions);
     }
 
     /**
-     * @param ReaderInterface $metadataReader
+     * @param ReaderInterface          $metadataReader
+     * @param WorkflowServiceInterface $workflowService
+     * @param LoggerInterface          $log
      */
-    protected function init(ReaderInterface $metadataReader)
+    protected function init(ReaderInterface $metadataReader, WorkflowServiceInterface $workflowService, LoggerInterface $log)
     {
         $this->setMetadataReader($metadataReader);
+        $this->setWorkflowService($workflowService);
+        $this->setLog($log);
     }
 
     /**
@@ -81,6 +101,8 @@ class RouteHandler extends AbstractListenerAggregate
      *
      * @throws Exception\InvalidMetadataException
      * @throws Exception\ResolveEntryIdEventException
+     * @throws Exception\InvalidWorkflowManagerAliasException
+     * @throws Exception\RuntimeException
      */
     public function onMetadataWorkflowToRun(WorkflowDispatchEventInterface $e)
     {
@@ -112,12 +134,42 @@ class RouteHandler extends AbstractListenerAggregate
         }
 
         $workflowManagerNameParam = $metadata->getWorkflowManagerNameRouterParam();
-        $workflowManagerName = $routeMatch->getParam($workflowManagerNameParam, null);
+        $workflowManagerNameFromRoute = $routeMatch->getParam($workflowManagerNameParam, null);
+
+        $workflowManagerAliasParam = $metadata->getWorkflowManagerAliasRouterParam();
+        $workflowManagerAlias = $routeMatch->getParam($workflowManagerAliasParam, null);
+
+        $workflowManagerName = $workflowManagerNameFromRoute;
+        if (null !== $workflowManagerAlias) {
+            $workflowService = $this->getWorkflowService();
+            if (!$workflowService->hasWorkflowManagerAlias($workflowManagerAlias)) {
+                $errMsg = sprintf('Invalid workflow manager alias: %s', $workflowManagerAlias);
+                throw new Exception\InvalidWorkflowManagerAliasException($errMsg);
+            }
+
+            $workflowManagerNameByAlias = $workflowService->getManagerNameByAlias($workflowManagerAlias);
+
+            if (null !== $workflowManagerNameFromRoute && $workflowManagerNameFromRoute !== $workflowManagerNameByAlias) {
+                $errMsg = sprintf(
+                    'Name collision workflow manager.The name of the alias: %s. The name of the router: %s',
+                    $workflowManagerNameByAlias,
+                    $workflowManagerNameFromRoute
+                );
+                throw new Exception\RuntimeException($errMsg);
+            }
+            $workflowManagerName = $workflowManagerNameByAlias;
+        }
 
         $workflowActionNameParam = $metadata->getWorkflowActionNameRouterParam();
         $workflowActionName = $routeMatch->getParam($workflowActionNameParam, null);
 
         if (null === $workflowManagerName || null === $workflowActionName) {
+            $this->getLog()->debug('Metadata Workflow to start not found', [
+                'workflowManagerNameFromRoute' => $workflowManagerNameFromRoute,
+                'workflowManagerAlias' => $workflowManagerAlias,
+                'workflowManagerName' => $workflowManagerName,
+                'workflowActionName' => $workflowActionName
+            ]);
             return null;
         }
 
@@ -125,8 +177,6 @@ class RouteHandler extends AbstractListenerAggregate
 
         $workflowNameParam = $metadata->getWorkflowNameRouterParam();
         $workflowName = $routeMatch->getParam($workflowNameParam, null);
-
-
 
         $runWorkflowParam = new RunWorkflowParam();
         $runWorkflowParam->setRunType($runType);
@@ -147,6 +197,7 @@ class RouteHandler extends AbstractListenerAggregate
             $event->setActionName($workflowActionName);
             $event->setManagerName($workflowManagerName);
             $event->setWorkflowName($workflowName);
+            $event->setManagerAlias($workflowManagerAlias);
 
 
             $resolveEntryIdResults = $this->getEventManager()->trigger(ResolveEntryIdEventInterface::RESOLVE_ENTRY_ID_EVENT, $event, function ($item) {
@@ -186,9 +237,14 @@ class RouteHandler extends AbstractListenerAggregate
      */
     public function onResolveEntryIdHandler(ResolveEntryIdEventInterface $event)
     {
+        $this->getLog()->info('Getting the value "entryId" to run the Workflow based on the router settings');
+
         $mvcEvent = $event->getWorkflowDispatchEvent()->getMvcEvent();
         $controller = $mvcEvent->getTarget();
         if (!$controller instanceof AbstractController) {
+            $this->getLog()->notice(
+                'Unable to get the value of "entryId" to start the workflow. No controller object in the property "target" MvcEvent.'
+            );
             return null;
         }
 
@@ -201,6 +257,9 @@ class RouteHandler extends AbstractListenerAggregate
         $actionMethod = AbstractController::getMethodFromAction($action);
 
         if (!method_exists($controller, $actionMethod)) {
+            $this->getLog()->notice(
+                'Unable to get the value of "entryId" to start the workflow. Do not set RouteMatch'
+            );
             return null;
         }
 
@@ -213,7 +272,16 @@ class RouteHandler extends AbstractListenerAggregate
         }
 
         $entryIdParam = $metadata->getEntryIdRouterParam();
-        return $routeMatch->getParam($entryIdParam, null);
+        $entryId = $routeMatch->getParam($entryIdParam, null);
+
+        $this->getLog()->info(
+            'Meaning "entryId" to run the Workflow based on the router settings',
+            [
+                'entryId' => $entryId
+            ]
+        );
+
+        return $entryId;
     }
 
 
@@ -281,5 +349,53 @@ class RouteHandler extends AbstractListenerAggregate
         }
 
         return $event;
+    }
+
+    /**
+     * Устанавливает логер
+     *
+     * @return LoggerInterface
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
+
+    /**
+     * Возвращает логер
+     *
+     * @param LoggerInterface $log
+     *
+     * @return $this
+     */
+    public function setLog(LoggerInterface $log)
+    {
+        $this->log = $log;
+
+        return $this;
+    }
+
+    /**
+     * Сервис для работы с workflow
+     *
+     * @return WorkflowServiceInterface
+     */
+    public function getWorkflowService()
+    {
+        return $this->workflowService;
+    }
+
+    /**
+     * Устанавливает сервис для работы с workflow
+     *
+     * @param WorkflowServiceInterface $workflowService
+     *
+     * @return $this
+     */
+    public function setWorkflowService(WorkflowServiceInterface $workflowService)
+    {
+        $this->workflowService = $workflowService;
+
+        return $this;
     }
 }

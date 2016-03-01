@@ -19,6 +19,7 @@ use Zend\Validator\ValidatorChain;
 use Zend\Validator\ValidatorInterface;
 use OldTown\Workflow\TransientVars\BaseTransientVars;
 use OldTown\Workflow\ZF2\ServiceEngine\Workflow\TransitionResultInterface;
+use Zend\Log\LoggerInterface;
 
 
 /**
@@ -65,23 +66,38 @@ class Dispatcher implements DispatcherInterface
     protected $validatorManager;
 
     /**
+     * Логер
+     *
+     * @var LoggerInterface
+     */
+    protected $log;
+
+    /**
      * @param array $options
      */
     public function __construct(array $options = [])
     {
-        call_user_func_array([$this, 'init'], $options);
+        $initOptions = [
+            array_key_exists('workflowService', $options) ? $options['workflowService'] : null,
+            array_key_exists('metadataReader', $options) ? $options['metadataReader'] : null,
+            array_key_exists('validatorManager', $options) ? $options['validatorManager'] : null,
+            array_key_exists('log', $options) ? $options['log'] : null,
+        ];
+        call_user_func_array([$this, 'init'], $initOptions);
     }
 
     /**
      * @param WorkflowService        $workflowService
      * @param ReaderInterface        $metadataReader
      * @param ValidatorPluginManager $validatorManager
+     * @param LoggerInterface        $log
      */
-    protected function init(WorkflowService $workflowService, ReaderInterface $metadataReader, ValidatorPluginManager $validatorManager)
+    protected function init(WorkflowService $workflowService, ReaderInterface $metadataReader, ValidatorPluginManager $validatorManager, LoggerInterface $log)
     {
         $this->setWorkflowService($workflowService);
         $this->setMetadataReader($metadataReader);
         $this->setValidatorManager($validatorManager);
+        $this->setLog($log);
     }
 
     /**
@@ -98,12 +114,20 @@ class Dispatcher implements DispatcherInterface
         $event->getMvcEvent()->setParam(static::WORKFLOW_DISPATCH_EVENT, $event);
         $event->setTarget($this);
 
+
+        $this->getLog()->debug(
+            sprintf(
+                'Event: %s. Getting metadata to start scheduling cycle workflow',
+                WorkflowDispatchEventInterface::LOAD_METADATA_EVENT
+            )
+        );
         $metadataResult = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::LOAD_METADATA_EVENT, $event, function ($test) {
             return ($test instanceof MetadataInterface);
         });
         $metadata = $metadataResult->last();
 
         if (!$metadata instanceof MetadataInterface) {
+            $this->getLog()->info('No metadata to start scheduling workflow.');
             return;
         }
 
@@ -111,6 +135,12 @@ class Dispatcher implements DispatcherInterface
 
         $prepareData = [];
         if ($metadata->isFlagRunPrepareData()) {
+            $this->getLog()->info(
+                sprintf(
+                    'Event: %s. Preparing data to run Workflow',
+                    WorkflowDispatchEventInterface::PREPARE_DATA_EVENT
+                )
+            );
             $prepareDataResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::PREPARE_DATA_EVENT, $event);
             foreach ($prepareDataResults as $prepareDataResult) {
                 if (is_array($prepareDataResult) || $prepareDataResult instanceof Traversable) {
@@ -123,9 +153,16 @@ class Dispatcher implements DispatcherInterface
 
         $flagRunWorkflow = $metadata->isWorkflowDispatch();
         if (true === $flagRunWorkflow) {
+            $this->getLog()->info(
+                sprintf(
+                    'Event: %s. Checking the workflow start conditions',
+                    WorkflowDispatchEventInterface::CHECK_RUN_WORKFLOW_EVENT
+                )
+            );
             $dispatchConditionsResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::CHECK_RUN_WORKFLOW_EVENT, $event);
             foreach ($dispatchConditionsResults as $dispatchConditionsResult) {
                 if (false === $dispatchConditionsResult) {
+                    $this->getLog()->info('Launch Workflow canceled.');
                     $flagRunWorkflow = false;
                     break;
                 }
@@ -133,6 +170,12 @@ class Dispatcher implements DispatcherInterface
         }
 
         if (true === $flagRunWorkflow) {
+            $this->getLog()->info(
+                sprintf(
+                    'Event: %s. Getting metadata workflow to run',
+                    WorkflowDispatchEventInterface::METADATA_WORKFLOW_TO_RUN_EVENT
+                )
+            );
             $runWorkflowParamResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::METADATA_WORKFLOW_TO_RUN_EVENT, $event, function ($result) {
                 return ($result instanceof RunWorkflowParamInterface);
             });
@@ -144,7 +187,12 @@ class Dispatcher implements DispatcherInterface
             }
             $event->setRunWorkflowParam($runWorkflowParamResult);
 
-
+            $this->getLog()->info(
+                sprintf(
+                    'Event: %s. Starting the workflow',
+                    WorkflowDispatchEventInterface::RUN_WORKFLOW_EVENT
+                )
+            );
             $runWorkflowResults = $this->getEventManager()->trigger(WorkflowDispatchEventInterface::RUN_WORKFLOW_EVENT, $event, function ($result) {
                 return ($result instanceof TransitionResultInterface);
             });
@@ -181,11 +229,17 @@ class Dispatcher implements DispatcherInterface
         $mvcEvent = $e->getMvcEvent();
         $controller = $mvcEvent->getTarget();
         if (!$controller instanceof AbstractController) {
+            $this->getLog()->notice(
+                'Unable to retrieve the metadata for scheduling workflow. No controller object in the property "target" MvcEvent.'
+            );
             return null;
         }
 
         $routeMatch = $mvcEvent->getRouteMatch();
         if (!$routeMatch) {
+            $this->getLog()->notice(
+                'Unable to retrieve the metadata for scheduling workflow. Do not set RouteMatch'
+            );
             return null;
         }
 
@@ -193,6 +247,13 @@ class Dispatcher implements DispatcherInterface
         $actionMethod = AbstractController::getMethodFromAction($action);
 
         if (!method_exists($controller, $actionMethod)) {
+            $this->getLog()->notice(
+                sprintf(
+                    'Unable to retrieve the metadata for scheduling workflow. There is no action(%s) in controller(%s)',
+                    $actionMethod,
+                    get_class($controller)
+                )
+            );
             return null;
         }
 
@@ -527,6 +588,31 @@ class Dispatcher implements DispatcherInterface
     public function setTransientVarsClassName($transientVarsClassName)
     {
         $this->transientVarsClassName = (string)$transientVarsClassName;
+
+        return $this;
+    }
+
+
+    /**
+     * Устанавливает логер
+     *
+     * @return LoggerInterface
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
+
+    /**
+     * Возвращает логер
+     *
+     * @param LoggerInterface $log
+     *
+     * @return $this
+     */
+    public function setLog(LoggerInterface $log)
+    {
+        $this->log = $log;
 
         return $this;
     }

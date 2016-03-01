@@ -9,6 +9,10 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use OldTown\Workflow\ZF2\Dispatch\Options\ModuleOptions;
 use OldTown\Workflow\ZF2\Dispatch\Metadata\MetadataReaderManager;
+use Zend\Log\Logger;
+use Zend\Log\Writer\Noop;
+use OldTown\Workflow\ZF2\ServiceEngine\Workflow;
+use OldTown\Workflow\ZF2\ServiceEngine\WorkflowServiceInterface;
 
 /**
  * Class RouteHandlerFactory
@@ -25,6 +29,7 @@ class RouteHandlerFactory implements  FactoryInterface
      * @throws \Zend\ServiceManager\Exception\ServiceNotFoundException
      * @throws \Zend\ServiceManager\Exception\ServiceNotCreatedException
      * @throws \Zend\ServiceManager\Exception\RuntimeException
+     * @throws \Zend\Log\Exception\InvalidArgumentException
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
@@ -37,9 +42,22 @@ class RouteHandlerFactory implements  FactoryInterface
 
         $reader = $readerManager->get($readerName);
 
+        $logName = $moduleOptions->getLogName();
+        if (null === $logName) {
+            $log = new Logger();
+            $writer = new Noop();
+            $log->addWriter($writer);
+        } else {
+            $log = $serviceLocator->get($logName);
+        }
+
+        /** @var WorkflowServiceInterface $workflowService */
+        $workflowService = $serviceLocator->get(Workflow::class);
 
         $options = [
-            'metadataReader' => $reader
+            'metadataReader' => $reader,
+            'workflowService' => $workflowService,
+            'log' => $log
         ];
 
         return new RouteHandler($options);

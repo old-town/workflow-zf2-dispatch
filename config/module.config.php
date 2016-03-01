@@ -15,7 +15,9 @@ $config = [
         /** Имя адапетра для чтения метданных необходимых для начали цикла диспетчиризация wf */
         ModuleOptions::DISPATCH_METADATA_READER            => DispatchAnnotationReader::READER_NAME,
         /** Имя адаптера для чтения метаданных необходимых для запуска wf */
-        ModuleOptions::RUN_WORKFLOW_PARAMS_METADATA_READER => RunParamsAnnotationReader::READER_NAME
+        ModuleOptions::RUN_WORKFLOW_PARAMS_METADATA_READER => RunParamsAnnotationReader::READER_NAME,
+        /** Имя используемого логгера */
+        ModuleOptions::LOG_NAME => null
     ],
     'workflow_zf2_dispatch_metadata_reader' => [
         'invokables' => [

@@ -50,6 +50,13 @@ class ResolveEntryIdEvent extends Event implements ResolveEntryIdEventInterface
     protected $workflowName;
 
     /**
+     * Псевдоним для доступа к менеджеру workflow
+     *
+     * @var string
+     */
+    protected $managerAlias;
+
+    /**
      * @return WorkflowDispatchEventInterface
      */
     public function getWorkflowDispatchEvent()
@@ -161,6 +168,30 @@ class ResolveEntryIdEvent extends Event implements ResolveEntryIdEventInterface
     public function setWorkflowName($workflowName)
     {
         $this->workflowName = $workflowName;
+
+        return $this;
+    }
+
+    /**
+     * Псевдоним для доступа к менеджеру workflow
+     *
+     * @return string
+     */
+    public function getManagerAlias()
+    {
+        return $this->managerAlias;
+    }
+
+    /**
+     * Устанавливает псевдоним для доступа к менеджеру workflow
+     *
+     * @param string|null $managerAlias
+     *
+     * @return $this
+     */
+    public function setManagerAlias($managerAlias)
+    {
+        $this->managerAlias = $managerAlias;
 
         return $this;
     }

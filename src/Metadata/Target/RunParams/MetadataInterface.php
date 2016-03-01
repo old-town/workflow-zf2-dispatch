@@ -22,6 +22,13 @@ interface MetadataInterface extends BaseMetadata
     const WORKFLOW_MANAGER_NAME_ROUTER_PARAM = 'workflowManagerName';
 
     /**
+     * Имя параметра роуетра, значение которого определяет псевдоним используемого менеджера workflow
+     *
+     * @var string
+     */
+    const WORKFLOW_MANAGER_ALIAS_ROUTER_PARAM = 'workflowManagerAlias';
+
+    /**
      *  Имя параметра роуетра, значение которого определяет имя действия в workflow
      *
      * @var string
@@ -58,6 +65,22 @@ interface MetadataInterface extends BaseMetadata
      * @return $this
      */
     public function setWorkflowManagerNameRouterParam($workflowManagerNameRouterParam);
+
+    /**
+     * Имя параметра в роуетере, значение которого - имя псевданима менеджера workflow
+     *
+     * @return string
+     */
+    public function getWorkflowManagerAliasRouterParam();
+
+    /**
+     * Устаналвивает имя параметра в роуетере, значение которого - имя псевданима менеджера workflow
+     *
+     * @param string $workflowManagerNameRouterParam
+     *
+     * @return $this
+     */
+    public function setWorkflowManagerAliasRouterParam($workflowManagerNameRouterParam);
 
     /**
      * Имя параметра в роуетере, значение которого имя вызываемого действия

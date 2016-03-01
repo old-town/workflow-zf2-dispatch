@@ -25,6 +25,11 @@ class ModuleOptions extends AbstractOptions
     const RUN_WORKFLOW_PARAMS_METADATA_READER = 'runWorkflowParamsMetadataReader';
 
     /**
+     * @var string
+     */
+    const LOG_NAME = 'logName';
+
+    /**
      * Имя адаптера для получения метаданных необходимых для начали цикла диспетчирезации workflow
      *
      * @var string
@@ -37,6 +42,13 @@ class ModuleOptions extends AbstractOptions
      * @var string
      */
     protected $runWorkflowParamsMetadataReader;
+
+    /**
+     * Имя используемого логера
+     *
+     * @var string|null
+     */
+    protected $logName;
 
     /**
      * @return string
@@ -74,6 +86,30 @@ class ModuleOptions extends AbstractOptions
     public function setRunWorkflowParamsMetadataReader($runWorkflowParamsMetadataReader)
     {
         $this->runWorkflowParamsMetadataReader = $runWorkflowParamsMetadataReader;
+
+        return $this;
+    }
+
+    /**
+     * Имя используемого логера
+     *
+     * @return null|string
+     */
+    public function getLogName()
+    {
+        return $this->logName;
+    }
+
+    /**
+     * Имя используемого логера
+     *
+     * @param null|string $logName
+     *
+     * @return $this
+     */
+    public function setLogName($logName)
+    {
+        $this->logName = $logName;
 
         return $this;
     }

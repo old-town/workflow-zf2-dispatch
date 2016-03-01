@@ -20,6 +20,13 @@ class Metadata implements MetadataInterface
     protected $workflowManagerNameRouterParam = self::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
 
     /**
+     *  Имя параметра в роуетере, значение которого - имя псевданима менеджера workflow
+     *
+     * @var string
+     */
+    protected $workflowManagerAliasRouterParam = self::WORKFLOW_MANAGER_ALIAS_ROUTER_PARAM;
+
+    /**
      * Имя параметра в роуетере, значение которого имя вызываемого действия
      *
      * @var string
@@ -63,6 +70,32 @@ class Metadata implements MetadataInterface
 
         return $this;
     }
+
+    /**
+     * Имя параметра в роуетере, значение которого - имя псевданима менеджера workflow
+     *
+     * @return string
+     */
+    public function getWorkflowManagerAliasRouterParam()
+    {
+        return $this->workflowManagerAliasRouterParam;
+    }
+
+
+    /**
+     * Устанавливает имя параметра в роуетере, значение которого - имя псевданима менеджера workflow
+     *
+     * @param string $workflowManagerNameRouterParam
+     *
+     * @return $this
+     */
+    public function setWorkflowManagerAliasRouterParam($workflowManagerNameRouterParam)
+    {
+        $this->workflowManagerAliasRouterParam = $workflowManagerNameRouterParam;
+
+        return $this;
+    }
+
 
     /**
      * Имя параметра в роуетере, значение которого имя вызываемого действия

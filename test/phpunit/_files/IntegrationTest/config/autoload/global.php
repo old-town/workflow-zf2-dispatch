@@ -10,8 +10,29 @@ use OldTown\Workflow\Loader\ArrayWorkflowFactory;
 use OldTown\Workflow\Util\DefaultVariableResolver;
 use OldTown\Workflow\Basic\BasicWorkflow;
 use OldTown\Workflow\Spi\Memory\MemoryWorkflowStore;
+use Zend\Log\LoggerAbstractServiceFactory;
 
 return [
+    'log' => [
+        'testLog' => [
+            'writers' => [
+                'syslog' => [
+                    'name' => 'stream',
+                    'options' => [
+                        'stream' => '/tmp/workflow-zf2-dispatch.log',
+                    ]
+                ]
+            ]
+        ]
+    ],
+    'workflow_zf2_dispatch' => [
+        //'logName' => 'testLog'
+    ],
+    'service_manager' => [
+        'abstract_factories' => [
+            LoggerAbstractServiceFactory::class => LoggerAbstractServiceFactory::class
+        ]
+    ],
     'router' => [
         'routes' => [
             'test' => [
@@ -59,19 +80,6 @@ return [
             ]
         ]
     ],
-
-
-//    'test' => [
-//        'workflowManagerName' => [
-//            'projectPrototype' => [
-//                'aliasEntity' => [
-//                    'class'=> 'asdfasdfasdfasdfasdf'
-//                    ''
-//                ]
-//            ]
-//        ]
-//    ],
-
 
 
     'controllers' => [
