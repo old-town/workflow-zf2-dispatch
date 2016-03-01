@@ -24,7 +24,7 @@ final class RunWorkflowParamFromRoute
     /**
      * @var string
      */
-    public $managerAlias = MetadataInterface::WORKFLOW_MANAGER_NAME_ROUTER_PARAM;
+    public $managerAlias = MetadataInterface::WORKFLOW_MANAGER_ALIAS_ROUTER_PARAM;
 
     /**
      * @var string
