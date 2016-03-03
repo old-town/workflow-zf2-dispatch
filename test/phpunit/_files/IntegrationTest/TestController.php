@@ -45,8 +45,7 @@ class TestController extends AbstractActionController
      * @WFD\PrepareData(type="method", handler="prepareWorkflowDataHandler", enabled=true)
      * @WFD\DispatchConditions(
      *     conditions={
-     *         @WFD\Condition(type="method", handler="testCondition"),
-     *         @WFD\Condition(type="service", handler="httpMethod", params={"allowedHttpMethods":{"GET"}})
+     *         @WFD\Condition(type="method", handler="testCondition")
      *     }
      * )
      * @WFD\RunWorkflowParamFromRoute(
