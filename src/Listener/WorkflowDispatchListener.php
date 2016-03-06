@@ -43,7 +43,7 @@ class WorkflowDispatchListener extends AbstractListenerAggregate
     /**
      * @param EventManagerInterface $events
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $events->getSharedManager()->attach(AbstractController::class, MvcEvent::EVENT_DISPATCH, [$this, 'onDispatchWorkflow'], 80);
     }
