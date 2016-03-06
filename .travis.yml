@@ -19,7 +19,10 @@ matrix:
       env:
         - DISABLE_ADD_TRAVIS_PHP_INI=true
 
-
+cache:
+  directories:
+    - $HOME/.composer/cache
+    
 before_install:
   - if [[ $EXECUTE_TEST_COVERALLS != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
   - if [[ $DISABLE_ADD_TRAVIS_PHP_INI != 'true' ]]; then phpenv config-add .travis/php.ini || return 0 ; fi
