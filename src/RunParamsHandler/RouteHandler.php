@@ -87,7 +87,7 @@ class RouteHandler extends AbstractListenerAggregate
     /**
      * @param EventManagerInterface $events
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $events->getSharedManager()->attach(Dispatcher::class, WorkflowDispatchEventInterface::METADATA_WORKFLOW_TO_RUN_EVENT, [$this, 'onMetadataWorkflowToRun'], 80);
     }
