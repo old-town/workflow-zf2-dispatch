@@ -28,7 +28,7 @@
     "doctrine/annotations": "~1.2.0"
   },
   "require-dev": {
-    "fabpot/php-cs-fixer": "~1.11",
+    "fabpot/php-cs-fixer": "~1.11.0",
     "phpunit/phpunit": "~4.8.0",
     "phpunit/phpcov": "~2.0.0",
     "zendframework/zend-loader": "~2.4.0",
