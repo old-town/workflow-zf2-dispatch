@@ -73,11 +73,11 @@ class Module implements
 
         /** @var WorkflowDispatchListener $injectWorkflowListener */
         $injectWorkflowListener = $sm->get(WorkflowDispatchListener::class);
-        $eventManager->attach($injectWorkflowListener);
+        $injectWorkflowListener->attach($eventManager);
 
         /** @var RouteHandler $routeHandler */
         $routeHandler = $sm->get(RouteHandler::class);
-        $eventManager->attach($routeHandler);
+        $routeHandler->attach($eventManager);
     }
 
 
