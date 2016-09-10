@@ -367,7 +367,6 @@ class Dispatcher implements DispatcherInterface
                     }
                     case 'service': {
                         $validatorParams = $condition->getParams();
-                        $validatorParams[static::WORKFLOW_DISPATCH_EVENT] = $e;
 
                         /** @var ValidatorInterface $validator */
                         $validator = $validatorManager->get($handler, $validatorParams);
